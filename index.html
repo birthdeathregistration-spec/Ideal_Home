@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="bn" class="light">
 <head>
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>আইডিয়াল হোম, টিকরপাড়া | মেস ম্যানেজমেন্ট</title>
@@ -23,6 +27,16 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "1094d89b-d41a-4282-bbc5-469603e76f9c",
+        });
+      });
+    </script>
+
     <style>
         body { font-family: 'Hind Siliguri', sans-serif !important; -webkit-tap-highlight-color: transparent; }
         .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
@@ -32,62 +46,48 @@
         .dark .nav-active { color: #818cf8 !important; }
         .tab-content { display: none; } 
         .tab-content.active { display: block; }
-
-        /* ── In-App Notification System ── */
-        #toastContainer { position:fixed; top:70px; right:12px; z-index:9999; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
-        .toast { pointer-events:auto; min-width:240px; max-width:300px; background:white; border-radius:16px; padding:12px 14px; box-shadow:0 8px 28px rgba(0,0,0,0.18); display:flex; align-items:flex-start; gap:10px; animation:toastIn 0.35s cubic-bezier(.22,1,.36,1) forwards; border-left:4px solid #4f46e5; }
-        .dark .toast { background:#1e293b; color:#e2e8f0; }
-        .toast.toast-success { border-color:#10b981; }
-        .toast.toast-error   { border-color:#ef4444; }
-        .toast.toast-warning { border-color:#f59e0b; }
-        .toast.toast-info    { border-color:#4f46e5; }
-        .toast-icon { font-size:18px; line-height:1; flex-shrink:0; margin-top:1px; }
-        .toast-body { flex:1; }
-        .toast-title { font-weight:700; font-size:12px; margin-bottom:2px; }
-        .toast-msg   { font-size:11px; opacity:.75; line-height:1.45; }
-        .toast-close { background:none; border:none; font-size:14px; opacity:.4; cursor:pointer; padding:0; line-height:1; flex-shrink:0; }
-        .toast-close:hover { opacity:.8; }
-        @keyframes toastIn  { from{opacity:0;transform:translateX(60px)} to{opacity:1;transform:translateX(0)} }
-        @keyframes toastOut { from{opacity:1;transform:translateX(0)}    to{opacity:0;transform:translateX(60px)} }
-
-        /* Notification Panel */
-        #notifPanel { position:fixed; top:60px; right:8px; width:300px; max-height:420px; background:white; border-radius:20px; box-shadow:0 16px 48px rgba(0,0,0,0.2); z-index:500; display:none; flex-direction:column; overflow:hidden; animation:fadeIn .2s ease; }
-        .dark #notifPanel { background:#1e293b; }
-        #notifPanel.open { display:flex; }
-        #notifBadge { position:absolute; top:2px; right:2px; background:#ef4444; color:white; border-radius:9999px; font-size:8px; font-weight:800; min-width:16px; height:16px; display:none; align-items:center; justify-content:center; padding:0 3px; line-height:1; }
-        #notifBadge.show { display:flex; }
+        
+        @media print {
+            @page { size: A4 portrait; margin: 10mm; }
+            body { font-family: 'Hind Siliguri', sans-serif !important; background: white !important; margin: 0; padding: 0; }
+            .print-hidden { display: none !important; }
+            body > *:not(#reportM) { display: none !important; }
+            #reportM { position: static !important; background: white !important; display: block !important; height: auto !important; overflow: visible !important; }
+            #printArea { box-shadow: none !important; margin: 0 auto !important; width: 100% !important; max-width: 100% !important; border-radius: 0 !important; page-break-inside: avoid; }
+            table { font-size: 11px !important; width: 100% !important; }
+            th, td { padding: 4px !important; }
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 dark:bg-darkBg dark:text-gray-100 pb-28 transition-colors duration-300">
-
-    <div id="toastContainer"></div>
-
-    <div id="notifPanel">
-        <div class="flex justify-between items-center px-4 py-3 border-b dark:border-slate-700 shrink-0">
-            <h4 class="font-bold text-sm text-primary dark:text-indigo-400"><i class="fas fa-bell mr-2"></i>নোটিফিকেশন</h4>
-            <div class="flex gap-2 items-center">
-                <button onclick="clearAllNotifs()" class="text-[9px] text-red-400 font-bold bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-full">সব মুছুন</button>
-                <button onclick="toggleNotifPanel()" class="text-gray-400 hover:text-gray-600 text-sm"><i class="fas fa-times"></i></button>
-            </div>
-        </div>
-        <div id="notifList" class="flex-1 overflow-y-auto hide-scrollbar divide-y dark:divide-slate-700 max-h-[340px]">
-            <p class="text-xs text-gray-400 text-center py-8">কোনো নোটিফিকেশন নেই</p>
-        </div>
-    </div>
 
     <div id="splashScreen" class="fixed inset-0 bg-primary z-[999] flex flex-col items-center justify-center text-white transition-opacity duration-500">
         <i class="fas fa-home text-7xl mb-4 animate-bounce"></i>
         <h1 class="text-3xl font-bold text-center">আইডিয়াল হোম<br><span class="text-lg">টিকরপাড়া</span></h1>
         <p class="mt-2 text-sm opacity-80 uppercase tracking-widest italic">Students Mess Management</p>
-        <div class="mt-10 flex gap-2"><div class="w-3 h-3 bg-white rounded-full animate-pulse"></div><div class="w-3 h-3 bg-white rounded-full animate-pulse delay-75"></div><div class="w-3 h-3 bg-white rounded-full animate-pulse delay-150"></div></div>
+        <div class="mt-10 flex gap-2" id="splashLoader"><div class="w-3 h-3 bg-white rounded-full animate-pulse"></div><div class="w-3 h-3 bg-white rounded-full animate-pulse delay-75"></div><div class="w-3 h-3 bg-white rounded-full animate-pulse delay-150"></div></div>
+    </div>
+
+    <div id="customToast" class="fixed top-14 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full shadow-2xl z-[1000] text-xs font-bold text-white transition-opacity duration-300 opacity-0 pointer-events-none" style="display: none;"></div>
+    
+    <div id="confirmModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-[1000]">
+        <div class="bg-white dark:bg-darkCard p-6 rounded-3xl w-full max-w-xs shadow-2xl text-center">
+            <div class="inline-block p-4 bg-orange-100 dark:bg-orange-900/30 rounded-full mb-4"><i class="fas fa-question-circle text-4xl text-orange-500"></i></div>
+            <h3 id="confirmMsg" class="font-bold text-sm mb-5 text-gray-800 dark:text-white leading-relaxed"></h3>
+            <div class="flex gap-3">
+                <button onclick="closeConfirm(false)" class="flex-1 bg-gray-200 dark:bg-gray-700 py-3 rounded-xl font-bold text-gray-700 dark:text-gray-300">না</button>
+                <button onclick="closeConfirm(true)" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold shadow-md">হ্যাঁ</button>
+            </div>
+        </div>
     </div>
 
     <nav class="glass sticky top-0 z-40 shadow-sm px-4 py-3 flex justify-between items-center">
         <div><h1 class="text-xl font-bold text-primary dark:text-indigo-400">আইডিয়াল হোম</h1><p class="text-[10px] tracking-widest uppercase opacity-70" id="monthName">Loading...</p></div>
-        <div class="flex gap-3 items-center">
+        <div class="flex gap-2 items-center">
+            <div id="loggedUserBadge" class="hidden"></div>
             <span id="offlineBadge" class="hidden bg-red-100 text-red-600 text-[9px] px-2 py-1 rounded-full font-bold animate-pulse"><i class="fas fa-wifi-slash"></i> অফলাইন</span>
             <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"><i id="themeIcon" class="fas fa-moon text-gray-600 dark:text-yellow-300"></i></button>
-            <button id="bellBtn" onclick="toggleNotifPanel()" class="relative p-2 rounded-full bg-yellow-100 dark:bg-yellow-900/40 text-yellow-600 dark:text-yellow-300 shadow-sm" title="নোটিফিকেশন"><i class="fas fa-bell"></i><span id="notifBadge"></span></button>
+            <button id="bellBtn" onclick="subscribeToNotifications()" class="p-2 rounded-full bg-yellow-100 dark:bg-yellow-900/40 text-yellow-600 dark:text-yellow-300 shadow-sm" title="নোটিফিকেশন চালু করুন"><i class="fas fa-bell"></i></button>
             <button onclick="fetchFreshData()" class="p-2 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 shadow-sm"><i class="fas fa-sync-alt" id="refreshIcon"></i></button>
         </div>
     </nav>
@@ -145,15 +145,15 @@
             </div>
 
             <button onclick="getAIAdvice()" class="w-full bg-gradient-to-r from-primary to-indigo-600 text-white p-4 rounded-3xl font-bold shadow-lg flex justify-center items-center gap-2 active:scale-95 transition animate-slide-up" style="animation-delay: 300ms"><i class="fas fa-robot"></i> <span id="aiBtnText">ম্যাজিক এআই সাজেশন</span></button>
-            <div id="aiBox" class="hidden glass p-5 rounded-2xl border-l-4 border-indigo-400 text-sm leading-relaxed animate-fade-in"></div>
+            <div id="aiBox" class="hidden glass p-5 rounded-2xl border-l-4 border-indigo-400 text-sm leading-relaxed animate-fade-in mt-4"></div>
         </div>
 
         <div id="tab_trans" class="tab-content w-full space-y-4">
             <div class="glass p-4 rounded-3xl shadow-sm mb-4"><canvas id="expenseChart" height="150"></canvas></div>
             <div class="glass rounded-2xl shadow-sm overflow-hidden">
                 <div class="flex bg-gray-100 dark:bg-gray-800 text-[10px] font-bold uppercase text-center border-b dark:border-gray-700">
-                    <button onclick="subTab('st1')" id="btn_st1" class="flex-1 py-3 text-primary border-b-2 border-primary transition">খরচ তালিকা</button>
-                    <button onclick="subTab('st2')" id="btn_st2" class="flex-1 py-3 opacity-50 transition">জমার হিসাব</button>
+                    <button onclick="subTab('st1')" id="btn_st1" class="flex-1 py-3 text-primary border-b-2 border-primary transition font-bold">খরচ তালিকা</button>
+                    <button onclick="subTab('st2')" id="btn_st2" class="flex-1 py-3 text-gray-500 dark:text-gray-400 transition">জমার হিসাব</button>
                 </div>
                 <div id="st1" class="p-2 overflow-x-auto max-h-[55vh] hide-scrollbar"><table class="w-full text-left text-sm"><tbody id="expBody" class="divide-y divide-gray-100 dark:divide-gray-700"></tbody></table></div>
                 <div id="st2" class="hidden p-2 overflow-x-auto max-h-[55vh] hide-scrollbar"><table class="w-full text-left text-sm"><tbody id="depBody" class="divide-y divide-gray-100 dark:divide-gray-700"></tbody></table></div>
@@ -166,6 +166,18 @@
                 <input type="text" id="searchB" onkeyup="searchBoarderList()" placeholder="বর্ডার খুঁজুন..." class="w-1/2 p-2 rounded-xl bg-white dark:bg-slate-800 text-xs outline-none border dark:border-slate-700 focus:ring-1 focus:ring-primary">
             </div>
             <div id="boarderList" class="space-y-4 pb-10"></div>
+        </div>
+
+        <div id="tab_archive" class="tab-content w-full space-y-4">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-bold text-sm opacity-80"><i class="fas fa-box-archive mr-2 text-indigo-500"></i>মাসিক আর্কাইভ</h3>
+            </div>
+            <div class="glass p-5 rounded-3xl shadow-sm mb-5 border-l-4 border-indigo-500">
+                <p class="text-[10px] text-gray-500 dark:text-gray-400 mb-4">পূর্ববর্তী মাসের সকল খরচের পিডিএফ রিপোর্ট এখানে সংরক্ষিত আছে।</p>
+                <div id="archiveList" class="space-y-3">
+                    <p class="text-xs text-center text-gray-400">কোনো আর্কাইভ পাওয়া যায়নি</p>
+                </div>
+            </div>
         </div>
 
         <div id="tab_manager" class="tab-content w-full space-y-5">
@@ -190,7 +202,7 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
-                    <button onclick="generateReport()" class="col-span-2 bg-rose-500 text-white py-4 rounded-3xl font-bold shadow-md"><i class="fas fa-file-pdf mr-2"></i>মাসিক হিসাব রিপোর্ট (PDF)</button>
+                    <button onclick="generateReport()" class="col-span-2 bg-rose-500 text-white py-4 rounded-3xl font-bold shadow-md"><i class="fas fa-file-pdf mr-2"></i>চলতি মাসের হিসাব (PDF)</button>
                     <button onclick="showAction('ASSIGN_BAZAAR')" class="col-span-2 bg-yellow-500 text-white py-3 rounded-2xl font-bold shadow"><i class="fas fa-user-tag mr-2"></i>পরবর্তী বাজারের দায়িত্ব দিন</button>
                     <button onclick="showAction('UPDATE_NOTICE')" class="col-span-2 bg-purple-500 text-white py-3 rounded-2xl font-bold shadow"><i class="fas fa-bullhorn mr-2"></i>নোটিশ আপডেট করুন</button>
                     <button onclick="showAction('MANAGER_EDIT_MEAL')" class="col-span-2 bg-indigo-500 text-white py-3 rounded-2xl font-bold shadow"><i class="fas fa-edit mr-2"></i>বর্ডারের মিল স্ট্যাটাস এডিট</button>
@@ -213,13 +225,29 @@
     <button onclick="openBazaarSubmit()" class="fixed bottom-24 right-4 bg-primary text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-2xl active:scale-95 transition-transform z-40 border-2 border-white/20"><i class="fas fa-shopping-basket"></i></button>
 
     <div class="fixed bottom-0 w-full glass border-t dark:border-slate-800 p-2 flex justify-around items-center z-50">
-        <button onclick="switchMainTab('home')" id="nav_home" class="nav-btn nav-active flex flex-col items-center p-2 w-1/4"><i class="fas fa-home text-lg mb-1"></i><span class="text-[9px] font-bold">হোম</span></button>
-        <button onclick="switchMainTab('trans')" id="nav_trans" class="nav-btn flex flex-col items-center p-2 opacity-50 w-1/4"><i class="fas fa-list-alt text-lg mb-1"></i><span class="text-[9px] font-bold">লিস্ট</span></button>
-        <button onclick="switchMainTab('boarders')" id="nav_boarders" class="nav-btn flex flex-col items-center p-2 opacity-50 w-1/4 relative"><i class="fas fa-user-circle text-lg mb-1"></i><span class="text-[9px] font-bold">বর্ডার</span></button>
-        <button onclick="switchMainTab('manager')" id="nav_manager" class="nav-btn flex flex-col items-center p-2 opacity-50 w-1/4"><i class="fas fa-shield-alt text-lg mb-1"></i><span class="text-[9px] font-bold">ম্যানেজার</span></button>
+        <button onclick="switchMainTab('home')" id="nav_home" class="nav-btn nav-active flex flex-col items-center p-2 w-1/5"><i class="fas fa-home text-lg mb-1"></i><span class="text-[9px] font-bold">হোম</span></button>
+        <button onclick="switchMainTab('trans')" id="nav_trans" class="nav-btn flex flex-col items-center p-2 opacity-50 w-1/5"><i class="fas fa-list-alt text-lg mb-1"></i><span class="text-[9px] font-bold">লিস্ট</span></button>
+        <button onclick="switchMainTab('boarders')" id="nav_boarders" class="nav-btn flex flex-col items-center p-2 opacity-50 w-1/5 relative"><i class="fas fa-user-circle text-lg mb-1"></i><span class="text-[9px] font-bold">বর্ডার</span></button>
+        <button onclick="switchMainTab('archive')" id="nav_archive" class="nav-btn flex flex-col items-center p-2 opacity-50 w-1/5"><i class="fas fa-box-archive text-lg mb-1"></i><span class="text-[9px] font-bold">আর্কাইভ</span></button>
+        <button onclick="switchMainTab('manager')" id="nav_manager" class="nav-btn flex flex-col items-center p-2 opacity-50 w-1/5"><i class="fas fa-shield-alt text-lg mb-1"></i><span class="text-[9px] font-bold">ম্যানেজার</span></button>
     </div>
 
-    <div id="pinModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[250]">
+    <div id="boarderLoginModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-[300]">
+        <div class="bg-white dark:bg-darkCard p-6 rounded-3xl w-full max-w-xs shadow-2xl text-center">
+            <div class="inline-block p-4 bg-primary/10 rounded-full mb-4"><i class="fas fa-user-lock text-4xl text-primary"></i></div>
+            <h3 class="font-bold text-lg mb-2">বর্ডার লগইন</h3>
+            <p class="text-[11px] text-gray-500 dark:text-gray-400 mb-4">হিস্ট্রি ও বিস্তারিত দেখতে লগইন করুন</p>
+            <select id="loginBoarderName" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-transparent focus:border-primary outline-none text-sm dark:text-white mb-3"></select>
+            <input type="password" id="loginBoarderPin" inputmode="numeric" pattern="[0-9]*" placeholder="আপনার পিন দিন" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-transparent focus:border-primary text-center tracking-widest font-bold text-lg outline-none dark:text-white mb-2">
+            <p id="loginError" class="text-xs font-bold text-red-500 mb-3 h-4"></p>
+            <div class="flex gap-3">
+                <button onclick="closeM('boarderLoginModal')" class="flex-1 bg-gray-200 dark:bg-gray-700 py-3 rounded-xl font-bold">বাতিল</button>
+                <button onclick="performBoarderLogin()" id="loginBtnTxt" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold shadow-md">লগইন</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="pinModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-[250]">
         <div class="bg-white dark:bg-darkCard p-6 rounded-3xl w-full max-w-xs shadow-2xl text-center">
             <h3 id="pinTitle" class="font-bold text-sm mb-4">পিন দিন</h3>
             <input type="password" id="pinInput" inputmode="numeric" pattern="[0-9]*" placeholder="****" class="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-primary/30 text-center tracking-[0.5em] font-bold text-2xl focus:outline-none focus:border-primary dark:text-white mb-5">
@@ -227,10 +255,10 @@
         </div>
     </div>
 
-    <div id="bazaarModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[150]">
+    <div id="bazaarModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-[150]">
         <div class="bg-white dark:bg-darkCard p-6 rounded-3xl w-full max-w-sm shadow-2xl">
             <h3 class="font-bold text-green-600 mb-4 border-b dark:border-gray-700 pb-2"><i class="fas fa-shopping-basket mr-2"></i>বাজার / খরচ সাবমিট</h3>
-            <p class="text-[10px] font-bold text-gray-400 mb-1 uppercase">বাজারকারী শিক্ষার্থী নির্বাচন করুন</p>
+            <p class="text-[10px] font-bold text-gray-400 mb-1 uppercase">বাজারকারী নির্বাচন করুন</p>
             <select id="bzrName" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-800 outline-none mb-3 text-sm dark:text-white"></select>
             <input id="bzrCost" type="number" inputmode="numeric" placeholder="মোট খরচ (৳)" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-800 outline-none mb-3 text-sm dark:text-white">
             <input id="bzrItems" placeholder="বাজারের আইটেম / খরচের বিবরণ" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-800 outline-none mb-5 text-sm dark:text-white">
@@ -238,11 +266,11 @@
         </div>
     </div>
 
-    <div id="profileModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4 z-[200]">
+    <div id="profileModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-end sm:items-center justify-center p-0 sm:p-4 z-[200]">
         <div id="profileModalContent" class="bg-white dark:bg-darkCard p-6 rounded-t-3xl sm:rounded-3xl w-full max-w-sm shadow-2xl transition-transform transform translate-y-full flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center mb-4 shrink-0">
                 <div class="flex items-center gap-3"><div id="pAvatar" class="w-10 h-10 rounded-full text-white flex justify-center items-center font-bold shadow-md"></div><h2 id="pName" class="text-xl font-bold">...</h2></div>
-                <button onclick="closeProfileModal()" class="w-8 h-8 bg-gray-100 dark:bg-gray-800 rounded-full flex justify-center items-center opacity-70"><i class="fas fa-times"></i></button>
+                <button onclick="closeM('profileModal')" class="w-8 h-8 bg-gray-100 dark:bg-gray-800 rounded-full flex justify-center items-center opacity-70"><i class="fas fa-times"></i></button>
             </div>
             <div class="grid grid-cols-2 gap-3 mb-4 shrink-0">
                 <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-2xl text-center"><p class="text-[10px] uppercase font-bold opacity-60">মোট জমা</p><h3 id="pDep" class="text-lg font-bold text-green-600 mt-1">৳০</h3></div>
@@ -251,7 +279,7 @@
             </div>
             <div class="flex-1 overflow-hidden flex flex-col min-h-0 mb-4">
                 <p class="text-[10px] font-bold uppercase opacity-60 mb-2 pl-1 shrink-0"><i class="fas fa-history mr-1"></i>সম্পূর্ণ মিল হিস্ট্রি</p>
-                <div id="pMealHistory" class="bg-gray-50 dark:slate-800 rounded-xl p-3 overflow-y-auto space-y-1 text-xs flex-1 hide-scrollbar"></div>
+                <div id="pMealHistory" class="bg-gray-50 dark:bg-slate-800 rounded-xl p-3 overflow-y-auto space-y-1 text-xs flex-1 hide-scrollbar"></div>
             </div>
             <div id="mgrDepositBtn" class="hidden mb-2 shrink-0">
                 <button onclick="managerAddDepositFromProfile()" class="w-full bg-green-500 text-white py-3 rounded-xl text-sm font-bold active:scale-95 transition shadow"><i class="fas fa-plus-circle mr-2"></i>টাকা জমা দিন (ম্যানেজার)</button>
@@ -260,15 +288,15 @@
         </div>
     </div>
 
-    <div id="modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[150]">
+    <div id="modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-[150]">
         <div class="bg-white dark:bg-darkCard p-6 rounded-3xl w-full max-w-sm shadow-2xl">
             <h3 id="mTitle" class="font-bold text-lg mb-4 text-primary border-b dark:border-gray-700 pb-2">...</h3>
             <div id="mInputs" class="space-y-3 mb-5"></div>
-            <div class="flex gap-2"><button onclick="closeM('modal')" class="flex-1 bg-gray-100 dark:bg-gray-700 py-3 rounded-xl font-bold text-xs">বাতিল</button><button onclick="submitAction()" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold text-xs">সাবমিট</button></div>
+            <div class="flex gap-2"><button onclick="closeM('modal')" class="flex-1 bg-gray-100 dark:bg-gray-700 py-3 rounded-xl font-bold text-xs">বাতিল</button><button id="submitActionBtn" onclick="submitAction(event)" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold text-xs">সাবমিট</button></div>
         </div>
     </div>
 
-    <div id="mealM" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[150]">
+    <div id="mealM" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-[150]">
         <div class="bg-white dark:bg-darkCard p-5 rounded-3xl w-full max-w-md max-h-[85vh] overflow-y-auto shadow-2xl hide-scrollbar">
             <h3 class="font-bold text-lg mb-3 text-teal-600 dark:text-teal-400 border-b dark:border-gray-700 pb-2">ম্যানুয়াল মিল এন্ট্রি</h3>
             <div class="flex text-[10px] font-bold text-gray-400 uppercase mb-2 px-2"><span class="w-1/3">নাম</span><span class="flex-1 text-center ml-4">দুপুর</span><span class="flex-1 text-center">রাত</span></div>
@@ -278,13 +306,6 @@
     </div>
 
     <div id="reportM" class="fixed inset-0 bg-gray-100 z-[300] hidden overflow-y-auto">
-        <style>
-            @media print {
-                body > *:not(#reportM) { display: none !important; }
-                #reportM { position: static !important; background: white !important; }
-                .print-hidden { display: none !important; }
-            }
-        </style>
         <div class="flex justify-between items-center p-4 print-hidden bg-white shadow-sm sticky top-0 z-10">
             <button onclick="closeM('reportM')" class="text-red-500 font-bold px-4 py-2 bg-red-50 rounded-xl flex items-center gap-2"><i class="fas fa-arrow-left"></i> ফিরে যান</button>
             <button onclick="window.print()" class="bg-primary text-white px-5 py-2 rounded-xl font-bold shadow flex items-center gap-2"><i class="fas fa-file-pdf"></i> PDF সেভ</button>
@@ -346,44 +367,212 @@
     </div>
 
     <script>
-        // ─── Backend URL & Constants ──────────────────────────────────────────
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4SbcFCc6eVKAJHUEaJ5Xy5eIkIp43lC9HN_PEw7-Xte8SJsR0Y9a4PHKp45xkX3A12w/exec";
-        const VAPID_PUBLIC_KEY = 'BHiXbSMqoaWC0dKsMO4FLgIA9T8KH9HHjMPq_g-LCxU4YoWOfp5eEFxlrrTFRr5xrCelwW0hGu736mCIvpuRCgk';
+        // NEW UPDATED SCRIPT URL
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwexrgqQOjI0ZPLfuO8DbaNb2AreFVm7FswQIV9xK9iN7ZTZA2dRF3d8RYaodjAG97SEw/exec";
         
         let windowAppData = null, myChart = null, managerPin = null;
 
-        // ─── Setup Basic UI Data ──────────────────────────────────────────────
         const hour = new Date().getHours();
         document.getElementById('greeting').innerText = (hour >= 5 && hour < 12) ? "শুভ সকাল" : (hour >= 12 && hour < 17) ? "শুভ দুপুর" : (hour >= 17 && hour < 20) ? "শুভ বিকাল" : "শুভ রাত্রি";
-        document.getElementById('monthName').innerText = new Date().toLocaleString('bn-BD', {month:'long', year:'numeric'});
+        
+        if(localStorage.getItem('boarderName') && !localStorage.getItem('boarderId')) {
+            localStorage.removeItem('boarderName');
+            localStorage.removeItem('boarderPin');
+        }
+
+        function showToast(msg, isError = false) {
+            let toast = document.getElementById('customToast');
+            toast.innerText = msg;
+            toast.className = `fixed top-14 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full shadow-2xl z-[1000] text-xs font-bold text-white transition-opacity duration-300 ${isError ? 'bg-red-500' : 'bg-green-500'}`;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.opacity = '1'; }, 10);
+            setTimeout(() => { 
+                toast.style.opacity = '0'; 
+                setTimeout(() => toast.style.display = 'none', 300); 
+            }, 3000);
+        }
+
+        let confirmCallback = null;
+        function showConfirm(msg, callback) {
+            document.getElementById('confirmMsg').innerText = msg;
+            document.getElementById('confirmModal').classList.remove('hidden');
+            document.getElementById('confirmModal').classList.add('flex');
+            confirmCallback = callback;
+        }
+        function closeConfirm(result) {
+            document.getElementById('confirmModal').classList.add('hidden');
+            document.getElementById('confirmModal').classList.remove('flex');
+            if(confirmCallback) confirmCallback(result);
+        }
+
+        function escapeHTML(str) {
+            if(!str) return "";
+            return String(str).replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        function parseSheetDate(dStr) {
+            if(!dStr) return null;
+            let ds = String(dStr).trim().split('T')[0].split(' ')[0]; 
+            
+            let y, m, d;
+            if(ds.includes('/')) {
+                let p = ds.split('/');
+                if(p.length === 3) {
+                    if(p[2].length === 4) { y = p[2]; m = p[1]; d = p[0]; } 
+                    else if(p[0].length === 4) { y = p[0]; m = p[1]; d = p[2]; }
+                }
+            } else if(ds.includes('-')) {
+                let p = ds.split('-');
+                if(p.length === 3 && p[0].length === 4) { y = p[0]; m = p[1]; d = p[2]; }
+            }
+            if(y && m && d) return new Date(Date.UTC(y, m-1, d, 12, 0, 0));
+            
+            let parsed = new Date(ds);
+            return isNaN(parsed.getTime()) ? null : new Date(Date.UTC(parsed.getFullYear(), parsed.getMonth(), parsed.getDate(), 12, 0, 0));
+        }
+
+        function isCurrentMonth(dStr) {
+            let d = parseSheetDate(dStr);
+            if (!d) return false;
+            let now = new Date();
+            return d.getUTCMonth() === now.getMonth() && d.getUTCFullYear() === now.getFullYear();
+        }
 
         function getAvatarColor(name) {
             const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-pink-500', 'bg-indigo-500'];
             let hash = 0;
+            if(!name) return colors[0];
             for(let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
             return colors[Math.abs(hash) % colors.length];
         }
 
-        // ─── PIN System ───────────────────────────────────────────────────────
+        function openModal(id) {
+            let el = document.getElementById(id);
+            if(el) {
+                el.classList.remove('hidden');
+                if (id === 'reportM') { el.style.display = 'block'; } else { el.classList.add('flex'); }
+            }
+        }
+
+        function closeM(id = 'modal') { 
+            let el = document.getElementById(id);
+            if(el) {
+                el.classList.remove('flex');
+                el.style.display = '';
+                el.classList.add('hidden');
+                if(id === 'boarderLoginModal') document.getElementById('loginError').innerText = "";
+            }
+        }
+
+        let pendingTab = '';
+        function openBoarderLogin(tabId) {
+            if (!windowAppData || !windowAppData.boarders || windowAppData.boarders.length < 2) {
+                showToast("ডেটা লোড হচ্ছে... দয়া করে অপেক্ষা করুন।", true);
+                return;
+            }
+            pendingTab = tabId;
+            let opts = "<option value='' disabled selected>আপনার নাম নির্বাচন করুন</option>" + windowAppData.boarders.slice(1).map(b => `<option value="${escapeHTML(String(b[0]).trim())}">${escapeHTML(String(b[1]).trim())}</option>`).join('');
+            document.getElementById('loginBoarderName').innerHTML = opts;
+            document.getElementById('loginBoarderPin').value = '';
+            document.getElementById('loginError').innerText = '';
+            openModal('boarderLoginModal');
+            document.getElementById('loginBtnTxt').innerText = "লগইন";
+        }
+
+        async function performBoarderLogin() {
+            let sel = document.getElementById('loginBoarderName');
+            let n = sel.value; 
+            let nameTxt = sel.options[sel.selectedIndex].text;
+            let p = document.getElementById('loginBoarderPin').value;
+            let errBox = document.getElementById('loginError');
+            
+            if(!n || !p) { errBox.innerText = "দয়া করে নাম সিলেক্ট করুন এবং পিন দিন!"; return; }
+            
+            errBox.innerText = "";
+            let btn = document.getElementById('loginBtnTxt');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST', 
+                    body: JSON.stringify({ action: "BOARDER_LOGIN", boarder_id: n, id: n, name: nameTxt, pin: p, boarder_pin: p })
+                });
+                const resText = await res.text();
+                
+                let isSuccess = false;
+                let errMsg = "❌ ভুল পিন! আবার চেষ্টা করুন।"; 
+                
+                try { 
+                    let d = JSON.parse(resText); 
+                    isSuccess = (d.status === "success"); 
+                    if(d.message) errMsg = "❌ " + d.message; 
+                } 
+                catch(e) { isSuccess = resText.toLowerCase().includes("success"); }
+                
+                if(isSuccess) {
+                    localStorage.setItem('boarderId', n);
+                    localStorage.setItem('boarderName', nameTxt);
+                    localStorage.setItem('boarderPin', p);
+                    closeM('boarderLoginModal');
+                    updateUserNav();
+                    switchMainTab(pendingTab, true);
+                    showToast("সফলভাবে লগইন হয়েছে!");
+                } else {
+                    errBox.innerText = errMsg; 
+                }
+            } catch(e) {
+                errBox.innerText = "ইন্টারনেট কানেকশন চেক করুন!";
+            } finally {
+                btn.innerText = "লগইন";
+                btn.disabled = false;
+            }
+        }
+
+        function boarderLogout() {
+            showConfirm("আপনি কি লগআউট করতে চান?", (res) => {
+                if(res) {
+                    localStorage.removeItem('boarderId');
+                    localStorage.removeItem('boarderName');
+                    localStorage.removeItem('boarderPin');
+                    updateUserNav();
+                    switchMainTab('home');
+                    showToast("লগআউট হয়েছে!");
+                }
+            });
+        }
+
+        function updateUserNav() {
+            let bn = localStorage.getItem('boarderName');
+            let userBadge = document.getElementById('loggedUserBadge');
+            if(bn) {
+                userBadge.innerHTML = `<button onclick="boarderLogout()" class="text-[10px] bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-full font-bold shadow-sm flex items-center gap-1"><i class="fas fa-user"></i> ${escapeHTML(bn)}</button>`;
+                userBadge.classList.remove('hidden');
+            } else {
+                userBadge.classList.add('hidden');
+            }
+        }
+
         let pinPromise = null;
         function askForPin(msg) {
             document.getElementById('pinTitle').innerText = msg;
             document.getElementById('pinInput').value = '';
-            document.getElementById('pinModal').classList.remove('hidden');
+            openModal('pinModal');
             setTimeout(() => document.getElementById('pinInput').focus(), 100);
             return new Promise(resolve => { pinPromise = resolve; });
         }
         function resolvePin() {
             let p = document.getElementById('pinInput').value;
-            document.getElementById('pinModal').classList.add('hidden');
+            closeM('pinModal');
             if(pinPromise) pinPromise(p);
         }
         function closePin() {
-            document.getElementById('pinModal').classList.add('hidden');
+            closeM('pinModal');
             if(pinPromise) pinPromise(null);
         }
 
-        // ─── Dark Mode & Tabs ─────────────────────────────────────────────────
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
             document.getElementById('themeIcon').classList.replace('fa-moon', 'fa-sun');
@@ -393,25 +582,56 @@
             let isD = document.documentElement.classList.contains('dark');
             localStorage.theme = isD ? 'dark' : 'light';
             document.getElementById('themeIcon').classList.replace(isD ? 'fa-moon' : 'fa-sun', isD ? 'fa-sun' : 'fa-moon');
-            if(myChart) initChart();
+            if(myChart) {
+                Chart.defaults.color = isD ? '#9ca3af' : '#4b5563';
+                myChart.update();
+            }
         }
 
         let currentTab = 'home';
-        const tabs = ['home', 'trans', 'boarders', 'manager'];
-        function switchMainTab(tabId) {
+        const tabs = ['home', 'trans', 'boarders', 'archive', 'manager'];
+        function switchMainTab(tabId, skipCheck = false) {
+            if ((tabId === 'trans' || tabId === 'boarders') && !localStorage.getItem('boarderId') && !skipCheck) {
+                openBoarderLogin(tabId);
+                return;
+            }
+
             document.getElementById('tab_' + currentTab).classList.remove('active');
             document.getElementById('tab_' + tabId).classList.add('active');
+            
             tabs.forEach(t => {
-                document.getElementById('nav_' + t).classList.remove('nav-active');
-                document.getElementById('nav_' + t).classList.add('opacity-50');
+                let btn = document.getElementById('nav_' + t);
+                btn.classList.remove('nav-active');
+                btn.classList.add('opacity-50');
             });
-            document.getElementById('nav_' + tabId).classList.add('nav-active');
-            document.getElementById('nav_' + tabId).classList.remove('opacity-50');
+            let activeBtn = document.getElementById('nav_' + tabId);
+            activeBtn.classList.remove('opacity-50');
+            activeBtn.classList.add('nav-active');
+            
             currentTab = tabId;
         }
 
-        // ─── Data Fetch & Render ──────────────────────────────────────────────
-        function initLoad() { fetchFreshData(); }
+        document.getElementById('monthName').innerText = new Date().toLocaleString('bn-BD', {month:'long', year:'numeric'});
+
+        window.addEventListener('load', async () => {
+            updateUserNav();
+            fetchFreshData(); 
+            if ('serviceWorker' in navigator && 'PushManager' in window && Notification.permission === 'granted') {
+                try {
+                    const reg = await navigator.serviceWorker.register('./sw.js');
+                    await navigator.serviceWorker.ready;
+                    let sub = await reg.pushManager.getSubscription();
+                    if (!sub) {
+                        sub = await reg.pushManager.subscribe({
+                            userVisibleOnly: true,
+                            applicationServerKey: urlB64ToUint8('BHiXbSMqoaWC0dKsMO4FLgIA9T8KH9HHjMPq_g-LCxU4YoWOfp5eEFxlrrTFRr5xrCelwW0hGu736mCIvpuRCgk')
+                        });
+                        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'SAVE_PUSH_SUB', subscription: JSON.stringify(sub) }) });
+                    }
+                    document.getElementById('bellBtn').classList.replace('bg-yellow-100', 'bg-green-100');
+                } catch(e) {}
+            }
+        });
         
         async function fetchFreshData() {
             document.getElementById('refreshIcon').classList.add('fa-spin');
@@ -420,41 +640,52 @@
                 const data = await res.json();
                 windowAppData = data;
                 renderUI(data);
-                let splash = document.getElementById('splashScreen');
-                if (splash && !splash.classList.contains('hidden')) {
-                    splash.style.opacity = '0';
-                    setTimeout(() => splash.classList.add('hidden'), 500);
-                }
                 document.getElementById('offlineBadge').classList.add('hidden');
             } catch(e) {
                 document.getElementById('offlineBadge').classList.remove('hidden');
+                if(!windowAppData) {
+                    document.getElementById('splashLoader').innerHTML = '<div class="text-center"><i class="fas fa-wifi-slash text-4xl mb-2"></i><p class="text-sm">ইন্টারনেট কানেকশন নেই</p><button onclick="location.reload()" class="mt-4 bg-white text-primary px-4 py-1.5 rounded-full text-xs font-bold">রিফ্রেশ করুন</button></div>';
+                    return;
+                }
             } finally {
                 document.getElementById('refreshIcon').classList.remove('fa-spin');
+                let splash = document.getElementById('splashScreen');
+                if (splash && windowAppData) {
+                    splash.style.opacity = '0';
+                    setTimeout(() => { if(splash.parentNode) splash.remove(); }, 500); 
+                }
+                searchBoarderList();
             }
         }
 
         function renderUI(data) {
-            document.getElementById('mgrName').innerText = data.manager;
+            if(!data || !data.manager) return; 
+
+            document.getElementById('mgrName').innerText = escapeHTML(data.manager);
+
             let notice = data.notice || "";
             let noticeCard = document.getElementById('noticeCard');
             if(notice && notice.trim() !== "") {
-                document.getElementById('noticeText').innerText = notice;
+                document.getElementById('noticeText').innerText = escapeHTML(notice);
                 noticeCard.classList.remove('hidden');
-            } else { noticeCard.classList.add('hidden'); }
-
-            let dropdownOptions = "<option value=''>নাম নির্বাচন করুন</option>" + data.boarders.slice(1).map(b => `<option value="${b[0]}">${b[0]}</option>`).join('');
+            } else {
+                noticeCard.classList.add('hidden');
+            }
+            
+            let dropdownOptions = "<option value='' disabled selected>নাম নির্বাচন করুন</option>" + data.boarders.slice(1).map(b => `<option value="${escapeHTML(String(b[0]).trim())}">${escapeHTML(String(b[1]).trim())}</option>`).join('');
             document.getElementById('bzrName').innerHTML = dropdownOptions;
 
             let assignedName = data.assignedBazaar || "";
             let assignedDates = data.assignedDates || "";
-            document.getElementById('upcomingBazaarName').innerText = assignedName || "নির্ধারিত হয়নি";
+            document.getElementById('upcomingBazaarName').innerText = escapeHTML(assignedName) || "নির্ধারিত হয়নি";
 
             if(assignedName && assignedDates) {
                 document.getElementById('bazaarDates').classList.remove('hidden');
-                document.getElementById('bazaarDatesText').innerText = assignedDates;
+                document.getElementById('bazaarDatesText').innerText = escapeHTML(assignedDates);
                 try {
                     let firstDate = assignedDates.split(" to ")[0].trim();
-                    let startD = new Date(firstDate); startD.setHours(0,0,0,0);
+                    let startD = parseSheetDate(firstDate);
+                    startD.setHours(0,0,0,0);
                     let today = new Date(); today.setHours(0,0,0,0);
                     let diff = Math.round((startD - today) / (1000*60*60*24));
                     let cdEl = document.getElementById('bazaarCountdown');
@@ -463,10 +694,12 @@
                     if(diff > 0) cdText.innerText = diff + " দিন বাকি আছে";
                     else if(diff === 0) cdText.innerText = "আজকেই বাজারের দিন! 🛒";
                     else cdText.innerText = Math.abs(diff) + " দিন আগে শুরু হয়েছে";
-                } catch(e) { document.getElementById('bazaarCountdown').classList.add('hidden'); }
+                } catch(e) {
+                    document.getElementById('bazaarCountdown').classList.add('hidden');
+                }
                 let avC = getAvatarColor(assignedName);
                 document.getElementById('bazaarAvatarBox').className = `w-12 h-12 rounded-full ${avC} flex items-center justify-center text-white font-bold text-lg shadow`;
-                document.getElementById('bazaarAvatarBox').innerText = assignedName.charAt(0);
+                document.getElementById('bazaarAvatarBox').innerText = escapeHTML(assignedName).charAt(0) || "?";
             } else {
                 document.getElementById('bazaarDates').classList.add('hidden');
                 document.getElementById('bazaarCountdown').classList.add('hidden');
@@ -474,15 +707,20 @@
                 document.getElementById('bazaarAvatarBox').innerHTML = '<i class="fas fa-user-clock text-yellow-600 dark:text-yellow-400 text-xl"></i>';
             }
 
-            let dData = data.deposits.slice(1), mData = data.meals.slice(1), tData = data.transactions.slice(1);
-            let td = dData.reduce((s, r) => s + Number(r[2] || 0), 0);
-            let te = tData.reduce((s, r) => s + Number(r[3] || 0), 0);
-            let totalMeals = mData.reduce((s, r) => s + Number(r[2] || 0) + Number(r[3] || 0), 0);
-            let mr = totalMeals > 0 ? (te / totalMeals).toFixed(2) : 0;
+            let dData = data.deposits.slice(1).filter(r => isCurrentMonth(r[1])); 
+            let mData = data.meals.slice(1).filter(r => isCurrentMonth(r[1])); 
+            let tData = data.transactions.slice(1).filter(r => isCurrentMonth(r[1])); 
+            
+            let td = dData.reduce((s, r) => s + Number(r[4] || 0), 0);
+            let te = tData.reduce((s, r) => s + Number(r[4] || 0), 0);
+            let totalMeals = mData.reduce((s, r) => s + Number(r[4] || 0) + Number(r[5] || 0), 0);
+            
+            let rawMr = Number(totalMeals > 0 ? (te / totalMeals) : 0);
+            let mrDisplay = rawMr.toFixed(2);
 
             document.getElementById('totalDep').innerText = "৳ " + td.toFixed(0);
             document.getElementById('totalExp').innerText = "৳ " + te.toFixed(0);
-            document.getElementById('mRate').innerText = "৳ " + mr;
+            document.getElementById('mRate').innerText = "৳ " + mrDisplay;
             document.getElementById('totalM').innerText = totalMeals + " টি";
             document.getElementById('bal').innerText = "৳ " + (td - te).toFixed(0);
             document.getElementById('budgetBar').style.width = (td > 0 ? (te / td) * 100 : 0) + "%";
@@ -490,24 +728,29 @@
 
             let tlCount = 0, tdCount = 0;
             let boarderCards = data.boarders.slice(1).map(b => {
-                if(b[2] == "ON") tlCount++;
-                if(b[3] == "ON") tdCount++;
-                let dep = dData.filter(d => d[1] == b[0]).reduce((s, r) => s + Number(r[2]), 0);
-                let meals = mData.filter(m => m[1] == b[0]).reduce((s, m) => s + Number(m[2]) + Number(m[3]), 0);
-                let cost = meals * mr;
+                let bId = String(b[0]).trim();
+                let bName = String(b[1] || "Unknown").trim();
+                let lunchStatus = b[3], dinnerStatus = b[4];
+                if(lunchStatus == "ON") tlCount++;
+                if(dinnerStatus == "ON") tdCount++;
+                
+                let dep = dData.filter(d => String(d[2]).trim() === bId).reduce((s, r) => s + Number(r[4]), 0);
+                let meals = mData.filter(m => String(m[2]).trim() === bId).reduce((s, m) => s + Number(m[4]) + Number(m[5]), 0);
+                let cost = meals * rawMr;
                 let bal = dep - cost;
                 let color = bal >= 0 ? 'border-green-500' : 'border-red-500';
-                let avColor = getAvatarColor(b[0]);
+                let avColor = getAvatarColor(bName);
+                
                 return `
-                <div class="glass p-4 rounded-3xl shadow-sm border-l-4 ${color} b-card mb-3">
+                <div class="glass p-4 rounded-3xl shadow-sm border-l-4 ${color} b-card mb-3" data-name="${escapeHTML(bName.toUpperCase())}">
                     <div class="flex justify-between items-center mb-3">
-                        <div class="flex items-center gap-2 cursor-pointer" onclick="openProfile('${b[0]}', ${dep}, ${meals}, ${cost}, ${bal}, '${avColor}')">
-                            <div class="w-8 h-8 rounded-full ${avColor} text-white flex items-center justify-center text-xs font-bold">${b[0].charAt(0)}</div>
-                            <h4 class="font-bold text-sm">${b[0]}</h4>
+                        <div class="flex items-center gap-2 cursor-pointer" onclick="openProfile('${escapeHTML(bId)}')">
+                            <div class="w-8 h-8 rounded-full ${avColor} text-white flex items-center justify-center text-xs font-bold">${escapeHTML(bName.charAt(0))}</div>
+                            <h4 class="font-bold text-sm">${escapeHTML(bName)}</h4>
                         </div>
                         <div class="flex gap-1">
-                            <button onclick="toggleMeal('${b[0]}','lunch','${b[2]=="ON"?"OFF":"ON"}')" class="px-3 py-1 rounded-lg text-[9px] font-bold text-white shadow-sm ${b[2]=="ON"?"bg-teal-500":"bg-gray-400"}">লাঞ্চ:${b[2]}</button>
-                            <button onclick="toggleMeal('${b[0]}','dinner','${b[3]=="ON"?"OFF":"ON"}')" class="px-3 py-1 rounded-lg text-[9px] font-bold text-white shadow-sm ${b[3]=="ON"?"bg-indigo-500":"bg-gray-400"}">ডিনার:${b[3]}</button>
+                            <button onclick="toggleMeal(event, '${escapeHTML(bId)}', 'lunch', '${lunchStatus=="ON"?"OFF":"ON"}')" class="w-12 h-6 flex justify-center items-center rounded-lg text-[9px] font-bold text-white shadow-sm ${lunchStatus=="ON"?"bg-teal-500":"bg-gray-400"}">L: ${lunchStatus}</button>
+                            <button onclick="toggleMeal(event, '${escapeHTML(bId)}', 'dinner', '${dinnerStatus=="ON"?"OFF":"ON"}')" class="w-12 h-6 flex justify-center items-center rounded-lg text-[9px] font-bold text-white shadow-sm ${dinnerStatus=="ON"?"bg-indigo-500":"bg-gray-400"}">D: ${dinnerStatus}</button>
                         </div>
                     </div>
                     <div class="flex justify-between text-[10px] font-bold opacity-60">
@@ -520,281 +763,701 @@
             document.getElementById('todayLunch').innerText = tlCount;
             document.getElementById('todayDinner').innerText = tdCount;
             document.getElementById('boarderList').innerHTML = boarderCards;
-            document.getElementById('expBody').innerHTML = tData.slice().reverse().slice(0, 10).map(t => `<tr class="border-b dark:border-slate-800"><td class="p-2">${t[2]}</td><td class="p-2 text-right font-bold text-red-500">৳${t[3]}</td></tr>`).join('');
-            document.getElementById('depBody').innerHTML = dData.slice().reverse().slice(0, 10).map(t => `<tr class="border-b dark:border-slate-800"><td class="p-2">${t[1]}</td><td class="p-2 text-right font-bold text-green-500">৳${t[2]}</td></tr>`).join('');
+            document.getElementById('expBody').innerHTML = tData.slice().reverse().slice(0, 10).map(t => `<tr class="border-b dark:border-slate-800"><td class="p-2">${escapeHTML(t[3])}</td><td class="p-2 text-right font-bold text-red-500">৳${t[4]}</td></tr>`).join('');
+            document.getElementById('depBody').innerHTML = dData.slice().reverse().slice(0, 10).map(t => `<tr class="border-b dark:border-slate-800"><td class="p-2">${escapeHTML(t[3])}</td><td class="p-2 text-right font-bold text-green-500">৳${t[4]}</td></tr>`).join('');
 
-            let pbData = (data.pendingBazaar || []).slice(1);
+            let pbRaw = data.pendingBazaar || data.pending_bazaar || data.Pending_Bazaar || data.PendingBazaar || [];
+            let pbData = [];
+            if(pbRaw.length > 0) {
+                if(String(pbRaw[0][0]).toLowerCase() === 'id' || String(pbRaw[0][0]).toLowerCase() === 'date') pbData = pbRaw.slice(1);
+                else pbData = pbRaw;
+            }
+            
             document.getElementById('pendingCount').innerText = pbData.length;
             if(pbData.length > 0) {
                 document.getElementById('pendingBazaarList').innerHTML = pbData.map(p => `
-                    <div class="flex justify-between items-center bg-orange-50 dark:bg-orange-900/10 p-2 rounded-xl">
+                    <div class="flex justify-between items-center bg-orange-50 dark:bg-orange-900/10 p-2 rounded-xl mb-2">
                         <div>
-                            <p class="text-xs font-bold">${p[1]} <span class="text-gray-400 font-normal">— ${p[2]}</span></p>
-                            <p class="text-[10px] text-orange-600 font-bold">৳${p[3]}</p>
+                            <p class="text-xs font-bold">${escapeHTML(p[3])} <span class="text-gray-400 font-normal">— ${escapeHTML(p[4])}</span></p>
+                            <p class="text-[10px] text-orange-600 font-bold">৳${p[5]}</p>
                         </div>
-                        <div class="flex gap-1">
-                            <button onclick="approveBazaar('${p[1]}','${p[2]}',${p[3]})" class="bg-green-500 text-white text-[9px] px-2 py-1 rounded-lg font-bold">✓</button>
-                            <button onclick="rejectBazaar('${p[1]}','${p[2]}')" class="bg-red-400 text-white text-[9px] px-2 py-1 rounded-lg font-bold">✗</button>
+                        <div class="flex flex-col gap-1">
+                            <button onclick="approveBazaar('${String(p[0]).trim()}', '${String(p[2]).trim()}', \`${escapeHTML(p[3])}\`, \`${escapeHTML(p[4])}\`, ${p[5]})" class="bg-green-500 text-white text-[9px] px-2 py-1 rounded-lg font-bold">✓ অনুমোদন</button>
+                            <button onclick="rejectBazaar('${String(p[0]).trim()}', \`${escapeHTML(p[3])}\`, \`${escapeHTML(p[4])}\`)" class="bg-red-400 text-white text-[9px] px-2 py-1 rounded-lg font-bold">✗ বাতিল</button>
                         </div>
                     </div>`).join('');
             } else {
                 document.getElementById('pendingBazaarList').innerHTML = '<p class="text-xs text-gray-400 text-center py-2">কোনো পেন্ডিং বাজার নেই</p>';
             }
+
+            let archData = data.archives || data.archive || data.Archive || data.Archives || [];
+            if(archData.length > 0) {
+                if(archData[0][0] && archData[0][0].toLowerCase().includes('month')) { archData = archData.slice(1); }
+                if(archData.length > 0) {
+                    document.getElementById('archiveList').innerHTML = archData.map(a => `
+                        <a href="${a[1]}" target="_blank" class="flex items-center justify-between bg-indigo-50 dark:bg-indigo-900/30 p-3 rounded-2xl transition hover:scale-95 mb-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center text-white"><i class="fas fa-file-pdf"></i></div>
+                                <div><p class="text-xs font-bold">${escapeHTML(a[0])}</p><p class="text-[9px] text-gray-500 uppercase">মাসিক রিপোর্ট</p></div>
+                            </div>
+                            <i class="fas fa-download text-indigo-400"></i>
+                        </a>
+                    `).join('');
+                }
+            }
+
             initChart();
         }
 
-        // ─── Actions & Profiles ───────────────────────────────────────────────
         function searchBoarderList() {
-            let input = document.getElementById("searchB").value.toUpperCase();
-            document.querySelectorAll(".b-card").forEach(c => c.style.display = c.querySelector("h4").innerText.toUpperCase().includes(input) ? "" : "none");
+            let input = document.getElementById("searchB");
+            if(!input) return;
+            let val = input.value.toUpperCase();
+            document.querySelectorAll(".b-card").forEach(c => {
+                let name = c.getAttribute("data-name") || "";
+                c.style.display = name.includes(val) ? "" : "none";
+            });
         }
 
-        async function toggleMeal(name, type, status) {
-            let pin = await askForPin(`${name}, মিল ${status == 'ON' ? 'চালু' : 'বন্ধ'} করতে পিন দিন:`);
-            if(!pin) return;
+        async function toggleMeal(event, id, type, status) {
+            let bData = windowAppData.boarders.find(b => String(b[0]).trim() === String(id).trim());
+            if(!bData) return;
+            let name = String(bData[1]).trim();
+            
+            let loggedInId = localStorage.getItem('boarderId');
+            let pinToUse = null;
+
+            if (String(loggedInId) === String(id) && localStorage.getItem('boarderPin')) {
+                showConfirm(`আপনি কি সত্যিই আপনার মিল ${status == 'ON' ? 'চালু' : 'বন্ধ'} করতে চান?`, async (resConfirm) => {
+                    if(!resConfirm) return;
+                    pinToUse = localStorage.getItem('boarderPin');
+                    await processToggle(event, id, name, type, status, pinToUse);
+                });
+            } else {
+                pinToUse = await askForPin(`${escapeHTML(name)}, মিল ${status == 'ON' ? 'চালু' : 'বন্ধ'} করতে পিন দিন:`);
+                if(!pinToUse) return;
+                await processToggle(event, id, name, type, status, pinToUse);
+            }
+        }
+
+        async function processToggle(event, id, name, type, status, pinToUse) {
+            let btn = event.target;
+            let oldHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+
             try {
-                const res = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: "TOGGLE_MEAL", name: name, type: type, status: status, boarder_pin: pin})});
-                let msg = await res.text();
-                showToast(status === 'ON' ? '✅ মিল চালু' : '⛔ মিল বন্ধ', msg, status === 'ON' ? 'success' : 'warning');
+                const res = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: "TOGGLE_MEAL", boarder_id: id, name: name, type: type, status: status, boarder_pin: pinToUse})});
+                let txt = await res.text();
+                if(txt.includes("Error")) showToast(txt, true);
+                else showToast(txt);
                 fetchFreshData();
-            } catch(e) { showToast('❌ সমস্যা', 'নেটওয়ার্ক সমস্যা', 'error'); }
+            } catch(e) {
+                showToast("ইন্টারনেট সমস্যা!", true);
+            } finally {
+                btn.innerHTML = oldHtml;
+                btn.disabled = false;
+            }
         }
 
+        let activeProfileId = "";
         let activeProfileName = "";
-        function openProfile(name, dep, meals, cost, bal, color) {
-            activeProfileName = name;
-            document.getElementById('pName').innerText = name;
-            document.getElementById('pAvatar').className = `w-10 h-10 rounded-full text-white flex justify-center items-center font-bold shadow-md ${color}`;
-            document.getElementById('pAvatar').innerText = name.charAt(0);
+        
+        function openProfile(id) {
+            let bData = windowAppData.boarders.find(b => String(b[0]).trim() === String(id).trim());
+            if(!bData) return;
+            
+            activeProfileId = String(bData[0]).trim();
+            activeProfileName = String(bData[1]).trim();
+            
+            let dData = windowAppData.deposits.slice(1).filter(r => isCurrentMonth(r[1]));
+            let mData = windowAppData.meals.slice(1).filter(r => isCurrentMonth(r[1]));
+            let tData = windowAppData.transactions.slice(1).filter(r => isCurrentMonth(r[1]));
+            
+            let te = tData.reduce((s, r) => s + Number(r[4] || 0), 0);
+            let tm = mData.reduce((s, r) => s + Number(r[4] || 0) + Number(r[5] || 0), 0);
+            let rawMr = Number(tm > 0 ? (te / tm) : 0);
+            
+            let dep = dData.filter(d => String(d[2]).trim() === String(activeProfileId)).reduce((s, r) => s + Number(r[4]), 0);
+            let meals = mData.filter(m => String(m[2]).trim() === String(activeProfileId)).reduce((s, m) => s + Number(m[4]) + Number(m[5]), 0);
+            let cost = meals * rawMr;
+            let bal = dep - cost;
+            
+            document.getElementById('pName').innerText = activeProfileName;
+            document.getElementById('pAvatar').className = `w-10 h-10 rounded-full text-white flex justify-center items-center font-bold shadow-md ${getAvatarColor(activeProfileName)}`;
+            document.getElementById('pAvatar').innerText = activeProfileName.charAt(0);
             document.getElementById('pDep').innerText = "৳" + dep.toFixed(0);
             document.getElementById('pExp').innerText = "৳" + cost.toFixed(0);
             document.getElementById('pBal').innerText = "৳" + bal.toFixed(0);
             document.getElementById('pBal').className = `text-2xl font-bold mt-1 ${bal < 0 ? 'text-red-500' : 'text-primary'}`;
-            let mData = windowAppData.meals.slice(1).filter(m => m[1] == name).reverse();
-            document.getElementById('pMealHistory').innerHTML = mData.map(m => `<div class="flex justify-between py-2 border-b dark:border-slate-700"><span>${new Date(m[0]).toLocaleDateString('bn-BD')}</span><span class="font-bold">দুপুর: ${m[2]}, রাত: ${m[3]}</span></div>`).join('') || "কোনো তথ্য নেই";
             
-            if(managerPin) document.getElementById('mgrDepositBtn').classList.remove('hidden');
-            else document.getElementById('mgrDepositBtn').classList.add('hidden');
+            let mHistory = mData.filter(m => String(m[2]).trim() === String(activeProfileId)).sort((a, b) => {
+                let dA = parseSheetDate(a[1]) || new Date(0);
+                let dB = parseSheetDate(b[1]) || new Date(0);
+                return dB - dA;
+            });
+
+            document.getElementById('pMealHistory').innerHTML = mHistory.map(m => {
+                let d = parseSheetDate(m[1]);
+                let dStr = d ? d.toLocaleDateString('bn-BD') : '';
+                return `<div class="flex justify-between py-2 border-b dark:border-slate-700"><span>${dStr}</span><span class="font-bold">দুপুর: ${m[4]}, রাত: ${m[5]}</span></div>`;
+            }).join('') || "কোনো তথ্য নেই";
             
-            document.getElementById('profileModal').classList.remove('hidden');
+            if(managerPin) { document.getElementById('mgrDepositBtn').classList.remove('hidden'); } 
+            else { document.getElementById('mgrDepositBtn').classList.add('hidden'); }
+            
+            openModal('profileModal');
             setTimeout(() => document.getElementById('profileModalContent').classList.remove('translate-y-full'), 10);
         }
 
-        async function managerAddDepositFromProfile() {
-            let amount = prompt(activeProfileName + "-এর জন্য জমার পরিমাণ (৳):");
-            if(!amount || isNaN(amount) || Number(amount) <= 0) return alert("সঠিক পরিমাণ দিন!");
-            const res = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: "ADD_DEPOSIT", pin: managerPin, name: activeProfileName, amount: amount})});
-            alert(await res.text());
-            closeProfileModal();
-            fetchFreshData();
+        function managerAddDepositFromProfile() {
+            closeM('profileModal');
+            document.getElementById('profileModalContent').classList.add('translate-y-full');
+            showAction('ADD_DEPOSIT');
+            let sel = document.getElementById('i_deposit_boarder');
+            if(sel) sel.value = activeProfileId; 
         }
 
         function closeProfileModal() {
             document.getElementById('profileModalContent').classList.add('translate-y-full');
-            setTimeout(() => document.getElementById('profileModal').classList.add('hidden'), 300);
+            setTimeout(() => { closeM('profileModal'); }, 300);
         }
 
-        async function changeBoarderPinFlow() {
-            closeProfileModal();
-            let oldP = await askForPin("বর্তমান পিন দিন:"); if(!oldP) return;
-            let newP = await askForPin("নতুন পিন দিন:"); if(!newP) return;
-            let res = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: "CHANGE_BOARDER_PIN", name: activeProfileName, boarder_pin: oldP, new_pin: newP})});
-            alert(await res.text());
+        function changeBoarderPinFlow() {
+            closeM('profileModal');
+            document.getElementById('profileModalContent').classList.add('translate-y-full');
+            setTimeout(async () => {
+                let oldP = await askForPin("বর্তমান পিন দিন:"); if(!oldP) return;
+                let newP = await askForPin("নতুন পিন দিন:"); if(!newP) return;
+                try {
+                    let res = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: "CHANGE_BOARDER_PIN", boarder_id: activeProfileId, name: activeProfileName, boarder_pin: oldP, new_pin: newP})});
+                    let txt = await res.text();
+                    showToast(txt);
+                    if(txt.toLowerCase().includes('success') && String(activeProfileId) === String(localStorage.getItem('boarderId'))) {
+                        localStorage.setItem('boarderPin', newP); 
+                    }
+                } catch(e) { showToast("সার্ভার এরর!", true); }
+            }, 50);
         }
 
         async function getAIAdvice() {
             const btn = document.getElementById('aiBtnText');
             btn.innerText = "এআই ভাবছে...";
             try {
-                const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "GET_AI_ADVICE", totalDeposit: document.getElementById('totalDep').innerText, totalExpense: document.getElementById('totalExp').innerText, mealRate: document.getElementById('mRate').innerText }) });
+                let todayStr = new Date().toDateString();
+                let todaysBazaarItems = windowAppData.transactions.slice(1)
+                    .filter(r => { let d = parseSheetDate(r[1]); return d && d.toDateString() === todayStr; })
+                    .map(r => r[3]).join(", ");
+                
+                if (!todaysBazaarItems) todaysBazaarItems = "আজ কোনো বাজার আসেনি";
+                let activeMealsCount = document.getElementById('todayLunch').innerText + " টি লাঞ্চ এবং " + document.getElementById('todayDinner').innerText + " টি ডিনার";
+
+                let payload = {
+                    action: "GET_AI_ADVICE",
+                    totalDeposit: document.getElementById('totalDep').innerText,
+                    totalExpense: document.getElementById('totalExp').innerText,
+                    mealRate: document.getElementById('mRate').innerText,
+                    totalMeals: activeMealsCount,
+                    todaysBazaar: todaysBazaarItems
+                };
+
+                const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
                 const text = await res.text();
                 const aiBox = document.getElementById('aiBox');
-                aiBox.classList.remove('hidden'); aiBox.innerText = text;
-            } catch(e) { alert("AI Error!"); } finally { btn.innerText = "ম্যাজিক এআই সাজেশন"; }
+                aiBox.classList.remove('hidden');
+                aiBox.innerText = text;
+            } catch(e) {
+                showToast("AI Error! ইন্টারনেট সংযোগ চেক করুন।", true);
+            } finally {
+                btn.innerText = "ম্যাজিক এআই সাজেশন";
+            }
         }
 
         async function unlockManager() {
             let p = await askForPin("ম্যানেজার পিন দিন:");
-            if(p) { managerPin = p; document.getElementById('mgrLockScreen').classList.add('hidden'); document.getElementById('mgrContent').classList.remove('hidden'); }
+            if(!p) return;
+            let lockBtn = document.querySelector('#mgrLockScreen button');
+            let oldText = lockBtn.innerText;
+            lockBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> যাচাই হচ্ছে...';
+
+            try {
+                const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: "MANAGER_LOGIN", pin: p}) });
+                const resText = await res.text();
+                
+                let isSuccess = false;
+                let errMsg = "❌ ভুল পিন! আবার চেষ্টা করুন।";
+                
+                try { 
+                    let d = JSON.parse(resText); 
+                    isSuccess = (d.status === "success"); 
+                    if(d.message) errMsg = "❌ " + d.message;
+                } 
+                catch(e) { isSuccess = resText.toLowerCase().includes("success"); }
+                
+                if(isSuccess) {
+                    managerPin = p;
+                    document.getElementById('mgrLockScreen').classList.add('hidden');
+                    document.getElementById('mgrContent').classList.remove('hidden');
+                    showToast("ম্যানেজার প্যানেল আনলক হয়েছে!");
+                } else {
+                    showToast(errMsg, true);
+                }
+            } catch(e) {
+                showToast("ইন্টারনেট কানেকশন চেক করুন।", true);
+            } finally {
+                lockBtn.innerText = oldText;
+            }
         }
-        function lockManager() { managerPin = null; document.getElementById('mgrContent').classList.add('hidden'); document.getElementById('mgrLockScreen').classList.remove('hidden'); }
+
+        function lockManager() {
+            managerPin = null;
+            document.getElementById('mgrContent').classList.add('hidden');
+            document.getElementById('mgrLockScreen').classList.remove('hidden');
+            showToast("ম্যানেজার প্যানেল লক করা হয়েছে!");
+        }
 
         let currentAct = "";
         function showAction(a) {
             currentAct = a;
-            document.getElementById('modal').classList.remove('hidden');
-            let t = {'ADD_DEPOSIT':'টাকা জমা করুন','ADD_TRANSACTION':'খরচ যোগ করুন','ADD_BOARDER':'বর্ডার যোগ করুন','DELETE_BOARDER':'বর্ডার ডিলিট','MANAGER_EDIT_MEAL':'মিল স্ট্যাটাস পরিবর্তন','ASSIGN_BAZAAR':'বাজারের দায়িত্ব দিন','CHANGE_MANAGER':'ম্যানেজার পরিবর্তন','CHANGE_MANAGER_PIN':'ম্যানেজার পিন পরিবর্তন','EDIT_BAZAAR':'বাজার এডিট করুন','DELETE_BAZAAR':'বাজার ডিলিট করুন','EDIT_DEPOSIT':'জমা এডিট করুন','EDIT_TRANSACTION':'খরচ এডিট করুন'};
-            document.getElementById('mTitle').innerText = t[a];
-            let i = "", bOpt = windowAppData.boarders.slice(1).map(b => `<option value="${b[0]}">${b[0]}</option>`).join('');
-            if(a == 'ADD_DEPOSIT') i = `<select id="i1" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">${bOpt}</select><input id="i2" type="number" inputmode="numeric" placeholder="টাকার পরিমাণ (৳)" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mt-2">`;
-            if(a == 'ADD_TRANSACTION') i = `<input id="i1" placeholder="কী বাজার আনা হয়েছে?" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2"><input id="i2" type="number" inputmode="numeric" placeholder="মোট খরচ (৳)" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">`;
-            if(a == 'ADD_BOARDER') i = `<input id="i1" placeholder="বর্ডারের নাম" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2"><input id="i2" type="number" placeholder="ফোন নম্বর" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">`;
-            if(a == 'DELETE_BOARDER') i = `<select id="i1" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">${bOpt}</select>`;
-            if(a == 'MANAGER_EDIT_MEAL') i = `<select id="i1" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2">${bOpt}</select><select id="i2" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2"><option value="lunch">দুপুরের মিল</option><option value="dinner">রাতের মিল</option></select><select id="i3" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700"><option value="ON">ON</option><option value="OFF">OFF</option></select>`;
-            if(a == 'ASSIGN_BAZAAR') i = `<p class="text-xs text-gray-500 mb-1">বাজারকারী নির্বাচন করুন:</p><select id="i1" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-3 font-bold">${bOpt}</select><div class="grid grid-cols-2 gap-2 mb-2"><div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">শুরুর তারিখ</p><input id="bzr_from" type="date" class="w-full p-2.5 rounded-xl bg-gray-100 dark:bg-slate-700 text-sm outline-none"></div><div><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">শেষের তারিখ</p><input id="bzr_to" type="date" class="w-full p-2.5 rounded-xl bg-gray-100 dark:bg-slate-700 text-sm outline-none"></div></div><div id="bzrDayCount" class="hidden text-center py-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl text-sm font-bold text-yellow-700"></div>`;
-            if(a == 'UPDATE_NOTICE') i = `<textarea id="i1" placeholder="নোটিশ লিখুন..." rows="4" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 resize-none"></textarea>`;
-            if(a == 'CHANGE_MANAGER') i = `<select id="i1" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">${bOpt}</select>`;
-            if(a == 'CHANGE_MANAGER_PIN') i = `<input id="i1" type="password" inputmode="numeric" placeholder="নতুন পিন দিন" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700"><input id="i2" type="password" inputmode="numeric" placeholder="নতুন পিন আবার দিন" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mt-2">`;
-            if(a == 'EDIT_BAZAAR' || a == 'DELETE_BAZAAR') {
-                let txOpt = windowAppData.transactions.slice(1).map((r,idx) => `<option value="${idx}">${r[0]} — ${r[1]} — ৳${r[3]}</option>`).join('');
-                i = `<select id="i_txIdx" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-3 text-xs">${txOpt}</select>` + (a=='EDIT_BAZAAR' ? `<input id="i1" placeholder="নতুন বিবরণ" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2"><input id="i2" type="number" inputmode="numeric" placeholder="নতুন খরচ (৳)" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">` : '');
+            openModal('modal');
+            let t = {'ADD_DEPOSIT':'টাকা জমা করুন','ADD_TRANSACTION':'খরচ যোগ করুন','ADD_BOARDER':'বর্ডার যোগ করুন','DELETE_BOARDER':'বর্ডার ডিলিট','MANAGER_EDIT_MEAL':'মিল স্ট্যাটাস পরিবর্তন','ASSIGN_BAZAAR':'বাজারের দায়িত্ব দিন','CHANGE_MANAGER':'ম্যানেজার পরিবর্তন','CHANGE_MANAGER_PIN':'ম্যানেজার পিন পরিবর্তন','EDIT_BAZAAR':'বাজার এডিট করুন','DELETE_BAZAAR':'বাজার ডিলিট করুন','EDIT_DEPOSIT':'জমা এডিট করুন','EDIT_TRANSACTION':'খরচ এডিট করুন', 'UPDATE_NOTICE': 'নোটিশ আপডেট করুন'};
+            document.getElementById('mTitle').innerText = t[a] || 'ম্যানেজার অ্যাকশন';
+            
+            let bOpt = windowAppData.boarders.slice(1).map(b => `<option value="${escapeHTML(String(b[0]).trim())}">${escapeHTML(String(b[1]).trim())}</option>`).join('');
+            
+            let i = "";
+            if(a == 'ADD_DEPOSIT') i = `<select id="i_deposit_boarder" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2">${bOpt}</select><input id="i_deposit_amount" type="number" inputmode="numeric" placeholder="টাকার পরিমাণ (৳)" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">`;
+            
+            if(a == 'ADD_TRANSACTION') i = `<select id="i_tx_boarder" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2"><option value="">যেকোনো খরচ (বর্ডার ছাড়া)</option>${bOpt}</select><input id="i_tx_item" placeholder="কী বাজার আনা হয়েছে?" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2"><input id="i_tx_cost" type="number" inputmode="numeric" placeholder="মোট খরচ (৳)" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">`;
+            
+            if(a == 'ADD_BOARDER') i = `<input id="i_new_boarder_name" placeholder="বর্ডারের নাম" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2"><input id="i_new_boarder_phone" type="number" placeholder="ফোন নম্বর" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">`;
+            
+            if(a == 'DELETE_BOARDER') i = `<select id="i_del_boarder" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">${bOpt}</select>`;
+            
+            if(a == 'MANAGER_EDIT_MEAL') {
+                let todayForMeal = new Date().toLocaleDateString('en-CA'); 
+                i = `
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">কোন তারিখের মিল?</p>
+                <input id="i_meal_date" type="date" value="${todayForMeal}" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-3 text-sm outline-none dark:text-white font-bold">
+                <select id="i_meal_boarder" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2">${bOpt}</select>
+                <select id="i_meal_type" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2">
+                    <option value="lunch">দুপুরের মিল</option>
+                    <option value="dinner">রাতের মিল</option>
+                </select>
+                <input id="i_meal_count" type="number" inputmode="numeric" placeholder="মোট মিল (যেমন: নিজের ১টি + গেস্ট ২টি = ৩)" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-center font-bold outline-none dark:text-white focus:ring-2 focus:ring-primary">
+                <p class="text-[9px] text-gray-500 mt-1 text-center">মিল বন্ধ করতে 0 লিখুন। গেস্ট আসলে মোট সংখ্যা (যেমন: ২ বা ৩) লিখুন।</p>
+                `;
             }
+            
+            if(a == 'ASSIGN_BAZAAR') i = `
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">বাজারকারী নির্বাচন করুন:</p>
+                <select id="i_assign_boarder" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-3 font-bold">${bOpt}</select>
+                <div class="grid grid-cols-2 gap-2 mb-2">
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">শুরুর তারিখ</p>
+                        <input id="bzr_from" type="date" class="w-full p-2.5 rounded-xl bg-gray-100 dark:bg-slate-700 text-sm outline-none focus:ring-2 focus:ring-yellow-400 dark:text-white">
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">শেষের তারিখ</p>
+                        <input id="bzr_to" type="date" class="w-full p-2.5 rounded-xl bg-gray-100 dark:bg-slate-700 text-sm outline-none focus:ring-2 focus:ring-yellow-400 dark:text-white">
+                    </div>
+                </div>
+                <div id="bzrDayCount" class="hidden text-center py-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl text-sm font-bold text-yellow-700 dark:text-yellow-400"></div>`;
+            
+            if(a == 'UPDATE_NOTICE') i = `<textarea id="i_notice_text" placeholder="নোটিশ লিখুন..." rows="4" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 resize-none"></textarea>`;
+            
+            if(a == 'CHANGE_MANAGER') i = `<select id="i_change_mgr" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">${bOpt}</select>`;
+            
+            if(a == 'CHANGE_MANAGER_PIN') i = `<input id="i_mgr_pin_old" type="password" inputmode="numeric" placeholder="বর্তমান পিন দিন" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2"><input id="i_mgr_pin1" type="password" inputmode="numeric" placeholder="নতুন পিন দিন" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2"><input id="i_mgr_pin2" type="password" inputmode="numeric" placeholder="নতুন পিন আবার দিন (নিশ্চিত করুন)" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">`;
+            
+            if(a == 'EDIT_BAZAAR') {
+                let txOpt = windowAppData.transactions.slice(1).map((r,idx) => `<option value="${idx}">${r[0]} — ${r[3]} — ৳${r[4]}</option>`).join('');
+                i = `<p class="text-xs text-gray-500 dark:text-gray-400 mb-1">কোন বাজারটি এডিট করবেন?</p>
+                <select id="i_edit_tx_idx" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-3 text-xs">${txOpt}</select>
+                <input id="i_edit_tx_item" placeholder="নতুন বিবরণ / আইটেম" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2">
+                <input id="i_edit_tx_cost" type="number" inputmode="numeric" placeholder="নতুন খরচ (৳)" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">`;
+            }
+            if(a == 'DELETE_BAZAAR') {
+                let txOpt = windowAppData.transactions.slice(1).map((r,idx) => `<option value="${idx}">${r[0]} — ${r[3]} — ৳${r[4]}</option>`).join('');
+                i = `<p class="text-xs text-red-500 font-bold mb-2">⚠️ এই খরচটি স্থায়ীভাবে মুছে যাবে!</p>
+                <select id="i_del_tx_idx" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-xs">${txOpt}</select>`;
+            }
+            if(a == 'EDIT_DEPOSIT') {
+                let depOpt = windowAppData.deposits.slice(1).map((r,idx) => `<option value="${idx}">${r[3]} — ৳${r[4]} (${new Date(r[1]).toLocaleDateString('bn-BD')})</option>`).join('');
+                i = `<p class="text-xs text-gray-500 dark:text-gray-400 mb-1">কোন জমাটি এডিট করবেন?</p>
+                <select id="i_edit_dep_idx" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-3 text-xs">${depOpt}</select>
+                <select id="i_edit_dep_boarder" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2">${bOpt}</select>
+                <input id="i_edit_dep_amount" type="number" inputmode="numeric" placeholder="সংশোধিত পরিমাণ (৳)" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">`;
+            }
+            if(a == 'EDIT_TRANSACTION') {
+                let txOpt2 = windowAppData.transactions.slice(1).map((r,idx) => `<option value="${idx}">${r[3]} — ৳${r[4]} (${new Date(r[1]).toLocaleDateString('bn-BD')})</option>`).join('');
+                i = `<p class="text-xs text-gray-500 dark:text-gray-400 mb-1">কোন খরচটি এডিট করবেন?</p>
+                <select id="i_edit_tx2_idx" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-3 text-xs">${txOpt2}</select>
+                <input id="i_edit_tx2_item" placeholder="সংশোধিত বিবরণ" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2">
+                <input id="i_edit_tx2_cost" type="number" inputmode="numeric" placeholder="সংশোধিত খরচ (৳)" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">`;
+            }
+            
             document.getElementById('mInputs').innerHTML = i;
 
             if(a == 'ASSIGN_BAZAAR') {
                 let todayStr = new Date().toISOString().split('T')[0];
                 document.getElementById('bzr_from').value = todayStr;
+                document.getElementById('bzr_from').min = todayStr;
+                document.getElementById('bzr_to').min = todayStr;
                 function updateDayCount() {
-                    let f = document.getElementById('bzr_from').value, t = document.getElementById('bzr_to').value, box = document.getElementById('bzrDayCount');
-                    if(f && t && t >= f) { box.classList.remove('hidden'); box.innerText = `📅 মোট ${Math.round((new Date(t) - new Date(f)) / (1000*60*60*24)) + 1} দিন`; } else box.classList.add('hidden');
+                    let f = document.getElementById('bzr_from').value;
+                    let t = document.getElementById('bzr_to').value;
+                    let box = document.getElementById('bzrDayCount');
+                    if(f && t && t >= f) {
+                        let diff = Math.round((new Date(t) - new Date(f)) / (1000*60*60*24)) + 1;
+                        box.classList.remove('hidden');
+                        box.innerText = `📅 মোট ${diff} দিন বাজারের দায়িত্ব`;
+                    } else { box.classList.add('hidden'); }
                 }
-                document.getElementById('bzr_from').addEventListener('change', updateDayCount); document.getElementById('bzr_to').addEventListener('change', updateDayCount);
+                document.getElementById('bzr_from').addEventListener('change', updateDayCount);
+                document.getElementById('bzr_to').addEventListener('change', updateDayCount);
             }
         }
 
-        async function submitAction() {
-            let payload = { pin: managerPin, action: currentAct, manager: document.getElementById('mgrName').innerText, name: document.getElementById('i1')?.value, amount: document.getElementById('i2')?.value, item: document.getElementById('i1')?.value, cost: document.getElementById('i2')?.value, type: document.getElementById('i2')?.value, status: document.getElementById('i3')?.value, notice: document.getElementById('i1')?.value };
-            if(currentAct == 'ASSIGN_BAZAAR') { let f = document.getElementById('bzr_from')?.value, t = document.getElementById('bzr_to')?.value; if(!f || !t || t < f) return alert("তারিখ ঠিক করুন!"); payload.dates = f + " to " + t; }
-            if(currentAct == 'CHANGE_MANAGER_PIN') { if(document.getElementById('i1').value !== document.getElementById('i2').value) return alert("পিন মিলছে না!"); payload.new_pin = document.getElementById('i1').value; }
-            if(['EDIT_BAZAAR', 'DELETE_BAZAAR'].includes(currentAct)) { let row = windowAppData.transactions.slice(1)[document.getElementById('i_txIdx').value]; payload.row_date = row[0]; payload.old_item = row[2]; payload.item = document.getElementById('i1')?.value || row[2]; payload.cost = document.getElementById('i2')?.value || row[3]; }
+        function subTab(t) {
+            document.getElementById('st1').classList.add('hidden');
+            document.getElementById('st2').classList.add('hidden');
+            document.getElementById(t).classList.remove('hidden');
+            
+            ['btn_st1','btn_st2'].forEach(i => {
+                let btn = document.getElementById(i);
+                btn.classList.remove('text-primary', 'border-b-2', 'border-primary', 'font-bold');
+                btn.classList.add('text-gray-500', 'dark:text-gray-400');
+            });
+            let activeBtn = document.getElementById('btn_' + t);
+            activeBtn.classList.remove('text-gray-500', 'dark:text-gray-400');
+            activeBtn.classList.add('text-primary', 'border-b-2', 'border-primary', 'font-bold');
+        }
 
+        async function submitAction(event) {
+            let btn = document.getElementById('submitActionBtn');
+            let oldHtml = btn.innerHTML;
+            
+            let payload = {
+                pin: managerPin,
+                action: currentAct,
+                manager: document.getElementById('mgrName').innerText,
+            };
+
+            switch(currentAct) {
+                case 'ADD_DEPOSIT':
+                    let selDep = document.getElementById('i_deposit_boarder');
+                    payload.boarder_id = selDep.value;
+                    payload.name = selDep.options[selDep.selectedIndex].text;
+                    payload.amount = document.getElementById('i_deposit_amount').value;
+                    if(!payload.amount) { showToast("টাকার পরিমাণ দিন!", true); return; }
+                    break;
+                case 'ADD_TRANSACTION':
+                    let selTx = document.getElementById('i_tx_boarder');
+                    payload.boarder_id = selTx.value;
+                    payload.name = selTx.value ? selTx.options[selTx.selectedIndex].text : "মেস খরচ"; 
+                    payload.item = document.getElementById('i_tx_item').value;
+                    payload.cost = document.getElementById('i_tx_cost').value;
+                    if(!payload.item || !payload.cost) { showToast("বাজারের তথ্য দিন!", true); return; }
+                    break;
+                case 'ASSIGN_BAZAAR':
+                    let selBzr = document.getElementById('i_assign_boarder');
+                    payload.boarder_id = selBzr.value;
+                    payload.name = selBzr.options[selBzr.selectedIndex].text;
+                    let fromD = document.getElementById('bzr_from')?.value;
+                    let toD = document.getElementById('bzr_to')?.value;
+                    if(!payload.boarder_id) { showToast("বাজারকারীর নাম সিলেক্ট করুন!", true); return; }
+                    if(!fromD || !toD) { showToast("তারিখ দিন!", true); return; }
+                    if(toD < fromD) { showToast("শেষের তারিখ শুরুর তারিখের আগে হতে পারবে না!", true); return; }
+                    payload.dates = fromD + " to " + toD;
+                    break;
+                case 'MANAGER_EDIT_MEAL':
+                    let selMeal = document.getElementById('i_meal_boarder');
+                    payload.boarder_id = selMeal.value;
+                    payload.name = selMeal.options[selMeal.selectedIndex].text;
+                    payload.type = document.getElementById('i_meal_type').value;
+                    
+                    let mCount = document.getElementById('i_meal_count').value;
+                    if(mCount === "") { showToast("মিল সংখ্যা দিন!", true); return; }
+                    payload.meal_count = mCount;
+
+                    payload.date = document.getElementById('i_meal_date').value; 
+                    if(!payload.date) { showToast("তারিখ নির্বাচন করুন!", true); return; }
+                    break;
+                case 'ADD_BOARDER':
+                    payload.name = document.getElementById('i_new_boarder_name').value;
+                    payload.phone = document.getElementById('i_new_boarder_phone').value;
+                    if(!payload.name) { showToast("নাম দিন!", true); return; }
+                    break;
+                case 'DELETE_BOARDER':
+                    let selDel = document.getElementById('i_del_boarder');
+                    payload.boarder_id = selDel.value;
+                    payload.name = selDel.options[selDel.selectedIndex].text;
+                    break;
+                case 'UPDATE_NOTICE':
+                    payload.notice = document.getElementById('i_notice_text').value;
+                    break;
+                case 'CHANGE_MANAGER':
+                    let selMgr = document.getElementById('i_change_mgr');
+                    payload.boarder_id = selMgr.value;
+                    payload.name = selMgr.options[selMgr.selectedIndex].text;
+                    break;
+                case 'CHANGE_MANAGER_PIN':
+                    let pOld = document.getElementById('i_mgr_pin_old').value;
+                    let p1 = document.getElementById('i_mgr_pin1').value;
+                    let p2 = document.getElementById('i_mgr_pin2').value;
+                    if(!pOld || !p1) { showToast("সব পিন দিন!", true); return; }
+                    if(p1 !== p2) { showToast("দুটো পিন মিলছে না!", true); return; }
+                    if(String(pOld).trim() !== String(managerPin).trim()) { showToast("বর্তমান পিন ভুল!", true); return; }
+                    payload.old_pin = pOld;
+                    payload.new_pin = p1;
+                    break;
+                case 'EDIT_BAZAAR':
+                    payload.action = 'EDIT_BAZAAR'; 
+                    let idxTx = document.getElementById('i_edit_tx_idx').value;
+                    let rowTx = windowAppData.transactions.slice(1)[idxTx];
+                    if(!rowTx) { showToast("বাজার নির্বাচন করুন!", true); return; }
+                    payload.id = rowTx[0];
+                    payload.row_date = rowTx[0];
+                    payload.old_item = rowTx[3];
+                    payload.item = document.getElementById('i_edit_tx_item').value || rowTx[3];
+                    payload.cost = document.getElementById('i_edit_tx_cost').value || rowTx[4];
+                    break;
+                case 'EDIT_TRANSACTION':
+                    payload.action = 'EDIT_TRANSACTION';
+                    let idxTx2 = document.getElementById('i_edit_tx2_idx').value;
+                    let rowTx2 = windowAppData.transactions.slice(1)[idxTx2];
+                    if(!rowTx2) { showToast("খরচ নির্বাচন করুন!", true); return; }
+                    payload.id = rowTx2[0];
+                    payload.row_date = rowTx2[0];
+                    payload.old_item = rowTx2[3];
+                    payload.item = document.getElementById('i_edit_tx2_item').value || rowTx2[3];
+                    payload.cost = document.getElementById('i_edit_tx2_cost').value || rowTx2[4];
+                    break;
+                case 'DELETE_BAZAAR':
+                    let idxDelTx = document.getElementById('i_del_tx_idx').value;
+                    let rowDelTx = windowAppData.transactions.slice(1)[idxDelTx];
+                    if(!rowDelTx) { showToast("খরচ নির্বাচন করুন!", true); return; }
+                    
+                    showConfirm(`"${rowDelTx[3]}" (৳${rowDelTx[4]}) ডিলিট করবেন?`, async (res) => {
+                        if(res) {
+                            payload.id = rowDelTx[0]; payload.row_date = rowDelTx[0];
+                            payload.item = rowDelTx[3]; payload.cost = rowDelTx[4];
+                            await finalizeAction(payload, btn, oldHtml);
+                        }
+                    });
+                    return; 
+                case 'EDIT_DEPOSIT':
+                    let idxDep = document.getElementById('i_edit_dep_idx').value;
+                    let rowDep = windowAppData.deposits.slice(1)[idxDep];
+                    if(!rowDep) { showToast("জমা নির্বাচন করুন!", true); return; }
+                    let selEditDep = document.getElementById('i_edit_dep_boarder');
+                    payload.id = rowDep[0];
+                    payload.row_date = rowDep[0];
+                    payload.boarder_id = selEditDep.value;
+                    payload.name = selEditDep.options[selEditDep.selectedIndex].text;
+                    payload.amount = document.getElementById('i_edit_dep_amount').value || rowDep[4];
+                    break;
+            }
+
+            await finalizeAction(payload, btn, oldHtml);
+        }
+
+        async function finalizeAction(payload, btn, oldHtml) {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
             try {
                 const res = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify(payload)});
-                showToast('✅ আপডেট সম্পন্ন', await res.text(), 'success');
-                closeM('modal'); fetchFreshData();
-            } catch(e) { showToast('❌ সমস্যা', 'নেটওয়ার্ক এরর', 'error'); }
+                const resText = await res.text();
+                showToast(resText);
+            } catch(e) {
+                showToast("সার্ভার এরর!", true);
+            } finally {
+                btn.innerHTML = oldHtml;
+                btn.disabled = false;
+                closeM('modal');
+                fetchFreshData();
+            }
         }
 
         function showDailyMeal() {
-            document.getElementById('mealM').classList.remove('hidden');
-            document.getElementById('mList').innerHTML = windowAppData.boarders.slice(1).map(r => `<div class="flex justify-between items-center glass p-2 rounded-xl mb-2"><span class="text-xs font-bold w-1/3">${r[0]}</span><div class="flex gap-2 w-2/3 justify-end"><input type="number" id="ml_l_${r[0]}" value="${(r[2]||'ON')=='OFF'?0:1}" class="w-12 p-1 rounded bg-gray-100 dark:bg-slate-700 text-center text-xs outline-none"><input type="number" id="ml_d_${r[0]}" value="${(r[3]||'ON')=='OFF'?0:1}" class="w-12 p-1 rounded bg-gray-100 dark:bg-slate-700 text-center text-xs outline-none"></div></div>`).join('');
+            openModal('mealM');
+            document.getElementById('mList').innerHTML = '<p class="text-center text-gray-500 py-4"><i class="fas fa-spinner fa-spin mr-2"></i> লোড হচ্ছে...</p>';
+            fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "GET_TODAYS_MEALS", pin: managerPin }) })
+            .then(res => res.json())
+            .then(mealsData => {
+                if (Array.isArray(mealsData)) {
+                    document.getElementById('mList').innerHTML = mealsData.map(r => `
+                        <div class="flex justify-between items-center glass p-2 rounded-xl mb-2">
+                            <span class="text-xs font-bold w-1/3">${escapeHTML(r.name)}</span>
+                            <div class="flex gap-2 w-2/3 justify-end">
+                                <input type="number" id="ml_l_${r.boarder_id}" value="${r.lunch}" class="w-12 p-1 rounded bg-gray-100 dark:bg-slate-700 text-center text-xs outline-none">
+                                <input type="number" id="ml_d_${r.boarder_id}" value="${r.dinner}" class="w-12 p-1 rounded bg-gray-100 dark:bg-slate-700 text-center text-xs outline-none">
+                            </div>
+                        </div>`).join('');
+                } else {
+                     document.getElementById('mList').innerHTML = '<p class="text-center text-red-500 py-4">ডেটা লোড করতে সমস্যা হয়েছে।</p>';
+                }
+            })
+            .catch(err => { document.getElementById('mList').innerHTML = '<p class="text-center text-red-500 py-4">ইন্টারনেট কানেকশন চেক করুন।</p>'; });
         }
+
         async function submitMeals(event) {
-            let list = windowAppData.boarders.slice(1).map(r => ({name: r[0], lunch: document.getElementById('ml_l_'+r[0]).value, dinner: document.getElementById('ml_d_'+r[0]).value}));
-            event.target.innerText = "সেভ হচ্ছে...";
-            await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: "ADD_DAILY_MEALS", pin: managerPin, mealsList: list})});
-            closeM('mealM'); fetchFreshData(); showToast('✅ মিল সেভ', 'সফলভাবে এন্ট্রি হয়েছে', 'success');
+            let list = windowAppData.boarders.slice(1).map(r => ({boarder_id: r[0], name: r[1], lunch: document.getElementById('ml_l_' + r[0]).value, dinner: document.getElementById('ml_d_' + r[0]).value}));
+            let btn = event.target;
+            let oldText = btn.innerText;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+            try {
+                const res = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: "ADD_DAILY_MEALS", pin: managerPin, mealsList: list})});
+                showToast(await res.text());
+            } catch(e) {
+                showToast("মিল সেভ করতে সমস্যা হয়েছে!", true);
+            } finally {
+                btn.innerText = oldText;
+                btn.disabled = false;
+                closeM('mealM');
+                fetchFreshData();
+            }
         }
 
         function generateReport() {
-            let d = windowAppData, te = d.transactions.slice(1).reduce((s, r) => s + Number(r[3] || 0), 0), tm = d.meals.slice(1).reduce((s, r) => s + Number(r[2] || 0) + Number(r[3] || 0), 0), mr = tm > 0 ? (te / tm).toFixed(2) : 0;
-            document.getElementById('reportMonth').innerText = "মাসিক হিসাব — " + document.getElementById('monthName').innerText;
-            document.getElementById('rExp').innerText = "৳" + te.toFixed(0); document.getElementById('rRate').innerText = "৳" + mr; document.getElementById('rMgrName').innerText = document.getElementById('mgrName').innerText;
-            document.getElementById('reportTable').innerHTML = d.boarders.slice(1).map((b, idx) => {
-                let dep = d.deposits.slice(1).filter(x => x[1] == b[0]).reduce((s, r) => s + Number(r[2]), 0), meals = d.meals.slice(1).filter(x => x[1] == b[0]).reduce((s, m) => s + Number(m[2]) + Number(m[3]), 0), cost = meals * mr, bal = dep - cost;
-                return `<tr style="background:${idx % 2 === 0 ? '#ffffff' : '#f8fafc'};"><td style="padding:10px 12px;font-weight:700;font-size:12px;">${b[0]}</td><td style="padding:10px 8px;text-align:right;font-size:12px;color:#0284c7;">৳${dep}</td><td style="padding:10px 8px;text-align:right;font-size:12px;">${meals}</td><td style="padding:10px 8px;text-align:right;font-size:12px;color:#ea580c;">৳${cost.toFixed(0)}</td><td style="padding:10px 8px;text-align:right;font-weight:800;font-size:13px;color:${bal<0?'#ef4444':'#16a34a'};">${bal<0?'- ':'+ '}৳${Math.abs(bal).toFixed(0)}</td></tr>`;
+            let d = windowAppData;
+            let te = d.transactions.slice(1).filter(r => isCurrentMonth(r[1])).reduce((s, r) => s + Number(r[4] || 0), 0);
+            let tm = d.meals.slice(1).filter(r => isCurrentMonth(r[1])).reduce((s, r) => s + Number(r[4] || 0) + Number(r[5] || 0), 0);
+            
+            let rawMr = Number(tm > 0 ? (te / tm) : 0);
+            let mrDisplay = rawMr.toFixed(2);
+
+            document.getElementById('reportMonth').innerText = "চলতি মাসের হিসাব — " + document.getElementById('monthName').innerText;
+            document.getElementById('rExp').innerText = "৳" + te.toFixed(0);
+            document.getElementById('rRate').innerText = "৳" + mrDisplay;
+            document.getElementById('rMgrName').innerText = document.getElementById('mgrName').innerText;
+
+            let rows = d.boarders.slice(1).map((b, idx) => {
+                let dep = d.deposits.slice(1).filter(x => String(x[2]).trim() === String(b[0]).trim() && isCurrentMonth(x[1])).reduce((s, r) => s + Number(r[4]), 0);
+                let meals = d.meals.slice(1).filter(x => String(x[2]).trim() === String(b[0]).trim() && isCurrentMonth(x[1])).reduce((s, m) => s + Number(m[4]) + Number(m[5]), 0);
+                let cost = meals * rawMr;
+                let bal = dep - cost;
+                let bg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
+                let balColor = bal < 0 ? '#ef4444' : '#16a34a';
+                return `<tr style="background:${bg};">
+                    <td style="padding:10px 12px;font-weight:700;font-size:12px;border-bottom:1px solid #f1f5f9;">${escapeHTML(b[1])}</td>
+                    <td style="padding:10px 8px;text-align:right;font-size:12px;border-bottom:1px solid #f1f5f9;color:#0284c7;">৳${dep}</td>
+                    <td style="padding:10px 8px;text-align:right;font-size:12px;border-bottom:1px solid #f1f5f9;">${meals}</td>
+                    <td style="padding:10px 8px;text-align:right;font-size:12px;border-bottom:1px solid #f1f5f9;color:#ea580c;">৳${cost.toFixed(0)}</td>
+                    <td style="padding:10px 8px;text-align:right;font-weight:800;font-size:13px;border-bottom:1px solid #f1f5f9;color:${balColor};">${bal < 0 ? '- ' : '+ '}৳${Math.abs(bal).toFixed(0)}</td>
+                </tr>`;
             }).join('');
-            document.getElementById('reportM').classList.remove('hidden');
+            document.getElementById('reportTable').innerHTML = rows;
+            openModal('reportM');
         }
 
-        function openBazaarSubmit() { document.getElementById('bazaarModal').classList.remove('hidden'); }
+        function openBazaarSubmit() { 
+            let sel = document.getElementById('bzrName');
+            sel.value = "";
+            document.getElementById('bzrCost').value = "";
+            document.getElementById('bzrItems').value = "";
+            openModal('bazaarModal'); 
+        }
+        
         async function submitPendingBazaar(event) {
-            let n = document.getElementById('bzrName').value, c = document.getElementById('bzrCost').value, i = document.getElementById('bzrItems').value;
-            if(!n || !c || !i) return alert("সব তথ্য দিন!");
-            let p = await askForPin(`বাজার সাবমিট করতে ${n}-এর পিন দিন:`); if(!p) return;
-            event.target.innerText = "পাঠানো হচ্ছে...";
-            await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: "SUBMIT_PENDING_BAZAAR", name: n, cost: c, item: i, boarder_pin: p})});
-            showToast('✅ সাবমিট', 'ম্যানেজারের অনুমোদনের জন্য পাঠানো হয়েছে', 'info'); closeM('bazaarModal'); fetchFreshData();
-        }
+            let sel = document.getElementById('bzrName');
+            let id = sel?.value; 
+            let n = sel?.options[sel.selectedIndex]?.text; 
+            let c = document.getElementById('bzrCost').value;
+            let i = document.getElementById('bzrItems').value;
+            
+            if(!id || !c || !i) { showToast("সব তথ্য দিন!", true); return; }
+            let p = await askForPin(`${n}-এর পিন দিন:`);
+            if(!p) return;
+            
+            let btn = event.target;
+            let oldText = btn.innerText;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
 
-        function subTab(t) { ['st1','st2'].forEach(i => document.getElementById(i).classList.add('hidden')); document.getElementById(t).classList.remove('hidden'); ['btn_st1','btn_st2'].forEach(i => document.getElementById(i).className = "flex-1 py-3 text-gray-500 transition"); document.getElementById('btn_' + t).className = "flex-1 py-3 text-primary border-b-2 border-primary transition"; }
-        function closeM(id = 'modal') { document.getElementById(id).classList.add('hidden'); }
+            try {
+                let payload = { action: "SUBMIT_BAZAAR", boarder_id: id, id: id, name: n, boarder_name: n, cost: c, item: i, pin: p, boarder_pin: p };
+                let res = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify(payload)});
+                let txt = await res.text();
+
+                if (txt.toLowerCase().includes('unauthorized') || txt.toLowerCase().includes('error')) {
+                    payload.action = "SUBMIT_PENDING_BAZAAR";
+                    let res2 = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify(payload)});
+                    txt = await res2.text();
+                }
+
+                if(txt.toLowerCase().includes('success') || txt.toLowerCase().includes('true')) {
+                    showToast("ম্যানেজারের অনুমোদনের জন্য পাঠানো হয়েছে!");
+                    closeM('bazaarModal');
+                } else {
+                    showToast(txt, true);
+                    if (!txt.toLowerCase().includes('error') && !txt.toLowerCase().includes('unauthorized')) { closeM('bazaarModal'); }
+                }
+            } catch(e) { 
+                showToast("পাঠাতে সমস্যা হয়েছে!", true); 
+            } finally {
+                btn.innerText = oldText;
+                btn.disabled = false;
+                fetchFreshData();
+            }
+        }
 
         function initChart() {
             if(!windowAppData) return;
-            const ctx = document.getElementById('expenseChart').getContext('2d');
-            if(myChart) myChart.destroy();
-            let dates = [], amounts = [];
-            windowAppData.transactions.slice(1).forEach(r => { let d = new Date(r[0]).toLocaleDateString('bn-BD', {day: 'numeric'}), idx = dates.indexOf(d); if(idx > -1) amounts[idx] += Number(r[3]||0); else { dates.push(d); amounts.push(Number(r[3]||0)); } });
-            myChart = new Chart(ctx, { type: 'bar', data: { labels: dates.slice(-7), datasets: [{label: 'দৈনিক খরচ (৳)', data: amounts.slice(-7), backgroundColor: '#4f46e5', borderRadius: 6}] }, options: {responsive: true, plugins: {legend: {display: false}}, scales: {x: {grid: {display: false}}}} });
-        }
-
-        async function approveBazaar(name, item, cost) { if(!managerPin) return alert("আগে আনলক করুন!"); if(!confirm("অনুমোদন করবেন?")) return; await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: "APPROVE_BAZAAR", pin: managerPin, name, item, cost, manager: document.getElementById('mgrName').innerText})}); showToast('✅ অনুমোদিত', 'বাজার খরচ অনুমোদিত হয়েছে', 'success'); fetchFreshData(); }
-        async function rejectBazaar(name, item) { if(!managerPin) return alert("আগে আনলক করুন!"); if(!confirm("বাতিল করবেন?")) return; await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: "REJECT_BAZAAR", pin: managerPin, name, item})}); showToast('❌ বাতিল', 'বাজার বাতিল করা হয়েছে', 'error'); fetchFreshData(); }
-
-        // ─── Push Notification & Service Worker ───────────────────────────────
-        function urlB64ToUint8(b) { const pad = '='.repeat((4 - b.length % 4) % 4), base64 = (b + pad).replace(/-/g, '+').replace(/_/g, '/'), raw = atob(base64); return Uint8Array.from({length: raw.length}, (_, i) => raw.charCodeAt(i)); }
-
-        async function subscribeToNotifications() {
-            if (!('serviceWorker' in navigator) || !('PushManager' in window)) return alert('ব্রাউজার সাপোর্ট করে না!');
-            const perm = await Notification.requestPermission();
-            if (perm !== 'granted') return alert('Notification permission দেননি!');
-            try {
-                const reg = await navigator.serviceWorker.register('./sw.js');
-                await navigator.serviceWorker.ready;
-                let sub = await reg.pushManager.getSubscription();
-                if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToUint8(VAPID_PUBLIC_KEY) });
-                const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'SAVE_PUSH_SUB', subscription: JSON.stringify(sub) }) });
-                if ((await res.text()).startsWith('Success')) {
-                    reg.showNotification('✅ আইডিয়াল হোম', { body: 'নোটিফিকেশন চালু হয়েছে!', icon: 'https://cdn-icons-png.flaticon.com/512/3081/3081986.png' });
-                    document.getElementById('bellBtn').classList.replace('text-yellow-600', 'text-green-600');
+            let canvas = document.getElementById('expenseChart');
+            const ctx = canvas.getContext('2d');
+            if(myChart) { myChart.destroy(); myChart = null; }
+            let datesKey = [], amounts = [], displayDates = [];
+            windowAppData.transactions.slice(1).filter(r => isCurrentMonth(r[1])).forEach(r => {
+                let dDate = parseSheetDate(r[1]);
+                if(dDate) {
+                    let key = dDate.toISOString().split('T')[0]; 
+                    let idx = datesKey.indexOf(key);
+                    if(idx > -1) { amounts[idx] += Number(r[4] || 0); } 
+                    else { datesKey.push(key); amounts.push(Number(r[4] || 0)); displayDates.push(dDate.toLocaleDateString('bn-BD', {day: 'numeric'})); }
                 }
-            } catch(err) { alert('Notification চালু করা যায়নি: ' + err.message); }
+            });
+            let combined = datesKey.map((key, i) => ({key, amount: amounts[i], display: displayDates[i]}));
+            combined.sort((a, b) => a.key.localeCompare(b.key));
+            let sortedDisplay = combined.map(c => c.display).slice(-7);
+            let sortedAmounts = combined.map(c => c.amount).slice(-7);
+            Chart.defaults.color = document.documentElement.classList.contains('dark') ? '#9ca3af' : '#4b5563';
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: sortedDisplay, datasets: [{label: 'দৈনিক খরচ (৳)', data: sortedAmounts, backgroundColor: '#4f46e5', borderRadius: 6}] },
+                options: {responsive: true, plugins: {legend: {display: false}}, scales: {x: {grid: {display: false}}}}
+            });
         }
 
-        window.addEventListener('load', async () => {
-            if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-            if (Notification.permission === 'granted') {
-                try {
-                    const reg = await navigator.serviceWorker.register('./sw.js');
-                    await navigator.serviceWorker.ready;
-                    let sub = await reg.pushManager.getSubscription();
-                    if (!sub) {
-                        sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToUint8(VAPID_PUBLIC_KEY) });
-                        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'SAVE_PUSH_SUB', subscription: JSON.stringify(sub) }) });
-                    }
-                    document.getElementById('bellBtn').classList.replace('text-yellow-600', 'text-green-600');
-                } catch(e) {}
-            }
-        });
-
-        // ─── Local Reminder System ────────────────────────────────────────────
-        let lastTriggeredDate = {};
-        function checkScheduledReminders() {
-            if (!windowAppData) return;
-            const now = new Date(), h = now.getHours(), m = now.getMinutes(), timeKey = `${h}:${m}`, today = now.toDateString();
-            if (lastTriggeredDate[timeKey] === today) return;
-
-            let title = "", body = "";
-            if ((h === 8 && m === 0) || (h === 9 && m === 30) || (h === 10 && m === 20)) {
-                let aName = windowAppData.assignedBazaar;
-                if (aName) { title = "🛒 বাজারের রিমাইন্ডার!"; body = `আজকের বাজারের দায়িত্ব: ${aName}। সময়মতো বাজার করতে ভুলবেন না!`; }
-            } else if (h === 10 && m === 0) { title = "🍽️ দুপুরের মিল রিমাইন্ডার"; body = "দুপুরের মিল চালু বা বন্ধ করার প্রয়োজন হলে এখনই আপডেট করুন।";
-            } else if (h === 18 && m === 0) { title = "🍽️ রাতের মিল রিমাইন্ডার"; body = "রাতের মিল চালু বা বন্ধ করার প্রয়োজন হলে এখনই আপডেট করুন।"; }
-
-            if (title && body) {
-                showToast(title, body, 'warning', true);
-                if (Notification.permission === 'granted' && 'serviceWorker' in navigator) {
-                    navigator.serviceWorker.ready.then(reg => reg.showNotification(title, { body: body, vibrate: [200, 100, 200], tag: 'mess-reminder', renotify: true }));
+        async function approveBazaar(rowId, boarderId, name, item, cost) {
+            if(!managerPin) { showToast("আগে ম্যানেজার প্যানেল আনলক করুন!", true); return; }
+            showConfirm(`"${name}" এর ৳${cost} বাজার অনুমোদন করবেন?`, async (res) => {
+                if(res) {
+                    let payload = { action: "APPROVE_BAZAAR", pin: managerPin, manager_pin: managerPin, id: rowId, row_id: rowId, boarder_id: boarderId, name: name, item: item, cost: cost, manager: document.getElementById('mgrName').innerText };
+                    const resFetch = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify(payload)});
+                    showToast(await resFetch.text());
+                    fetchFreshData();
                 }
-                lastTriggeredDate[timeKey] = today;
-            }
+            });
         }
-        setInterval(checkScheduledReminders, 60000);
 
-        // ─── In-App Notifications ─────────────────────────────────────────────
-        let notifStore = JSON.parse(localStorage.getItem('ih_notifs') || '[]'), notifPanelOpen = false;
-        function saveNotifs() { localStorage.setItem('ih_notifs', JSON.stringify(notifStore.slice(0, 50))); }
-        function showToast(title, msg, type = 'info', persist = true) {
-            const icons = { info:'🔔', success:'✅', error:'❌', warning:'⚠️' }, id = 'toast_' + Date.now();
-            const el = document.createElement('div'); el.className = `toast toast-${type}`; el.id = id;
-            el.innerHTML = `<span class="toast-icon">${icons[type]}</span><div class="toast-body"><p class="toast-title">${title}</p><p class="toast-msg">${msg}</p></div><button class="toast-close" onclick="dismissToast('${id}')">✕</button>`;
-            document.getElementById('toastContainer').appendChild(el);
-            if(persist) addToNotifHistory(title, msg, type); setTimeout(() => dismissToast(id), 5000);
+        async function rejectBazaar(rowId, name, item) {
+            if(!managerPin) { showToast("আগে ম্যানেজার প্যানেল আনলক করুন!", true); return; }
+            showConfirm(`"${name}" এর বাজার বাতিল করবেন?`, async (res) => {
+                if(res) {
+                    let payload = { action: "REJECT_BAZAAR", pin: managerPin, manager_pin: managerPin, id: rowId, row_id: rowId, name: name, item: item };
+                    const resFetch = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify(payload)});
+                    showToast(await resFetch.text());
+                    fetchFreshData();
+                }
+            });
         }
-        function dismissToast(id) { const el = document.getElementById(id); if(el) { el.style.animation = 'toastOut 0.3s ease forwards'; setTimeout(() => el.remove(), 300); } }
-        function addToNotifHistory(title, msg, type = 'info') { notifStore.unshift({ id: Date.now(), title, msg, type, time: new Date().toLocaleTimeString('bn-BD', {hour:'2-digit', minute:'2-digit'}), read: false }); saveNotifs(); renderNotifPanel(); updateNotifBadge(); }
-        function renderNotifPanel() {
-            const list = document.getElementById('notifList'); if(!notifStore.length) return list.innerHTML = '<p class="text-xs text-gray-400 text-center py-8">কোনো নোটিফিকেশন নেই</p>';
-            list.innerHTML = notifStore.map(n => `<div class="px-4 py-3 ${n.read?'opacity-60':'bg-indigo-50/50'} cursor-pointer transition" onclick="markRead(${n.id})"><div class="flex gap-2 items-start"><span class="text-base">${{'info':'🔔','success':'✅','error':'❌','warning':'⚠️'}[n.type]}</span><div class="flex-1"><p class="text-xs font-bold truncate">${n.title}</p><p class="text-[10px] mt-0.5 leading-relaxed">${n.msg}</p><p class="text-[9px] text-gray-400 mt-1">${n.time}</p></div>${!n.read?'<span class="w-2 h-2 rounded-full bg-indigo-500 mt-1"></span>':''}</div></div>`).join('');
+
+        function subscribeToNotifications() {
+             window.OneSignalDeferred.push(function(OneSignal) { OneSignal.showSlidedownPrompt(); });
         }
-        function markRead(id) { let n = notifStore.find(x => x.id === id); if(n) { n.read = true; saveNotifs(); renderNotifPanel(); updateNotifBadge(); } }
-        function clearAllNotifs() { notifStore = []; saveNotifs(); renderNotifPanel(); updateNotifBadge(); }
-        function updateNotifBadge() { let u = notifStore.filter(n => !n.read).length, b = document.getElementById('notifBadge'); if(u > 0) { b.classList.add('show'); b.innerText = u > 9 ? '9+' : u; } else b.classList.remove('show'); }
-        function toggleNotifPanel() { notifPanelOpen = !notifPanelOpen; document.getElementById('notifPanel').classList.toggle('open', notifPanelOpen); if(notifPanelOpen) renderNotifPanel(); }
-        document.addEventListener('click', e => { if(notifPanelOpen && !document.getElementById('notifPanel').contains(e.target) && !document.getElementById('bellBtn').contains(e.target)) { notifPanelOpen = false; document.getElementById('notifPanel').classList.remove('open'); } });
-        
-        updateNotifBadge(); initLoad();
     </script>
 </body>
 </html>
