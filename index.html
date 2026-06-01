@@ -132,8 +132,8 @@
 
             <div class="glass p-5 rounded-3xl shadow-sm mb-5 animate-slide-up border-t-4 border-primary" style="animation-delay: 200ms">
                 <div class="flex justify-between items-end mb-4">
-                    <div><p class="text-[10px] uppercase font-bold opacity-70">মোট জমা</p><h2 id="totalDep" class="text-xl font-bold text-green-600 dark:text-green-400">৳ ০</h2></div>
-                    <div class="text-right"><p class="text-[10px] uppercase font-bold opacity-70">মোট খরচ</p><h2 id="totalExp" class="text-xl font-bold text-red-600 dark:text-red-400">৳ ০</h2></div>
+                    <div><p class="text-[10px] uppercase font-bold opacity-70">চলতি মাসের জমা</p><h2 id="totalDep" class="text-xl font-bold text-green-600 dark:text-green-400">৳ ০</h2></div>
+                    <div class="text-right"><p class="text-[10px] uppercase font-bold opacity-70">চলতি মাসের খরচ</p><h2 id="totalExp" class="text-xl font-bold text-red-600 dark:text-red-400">৳ ০</h2></div>
                 </div>
                 <div class="w-full bg-gray-200 dark:bg-gray-700 h-2.5 rounded-full overflow-hidden"><div id="budgetBar" class="h-full bg-primary transition-all duration-1000" style="width: 0%"></div></div>
                 <div class="flex justify-between text-[10px] font-bold opacity-60"><span id="budgetPercent">০% ব্যবহৃত</span><span>ব্যালেন্স: <span id="bal" class="text-primary dark:text-indigo-400 font-bold">৳ ০</span></span></div>
@@ -239,7 +239,10 @@
             <p class="text-[11px] text-gray-500 dark:text-gray-400 mb-4">হিস্ট্রি ও বিস্তারিত দেখতে লগইন করুন</p>
             <select id="loginBoarderName" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-transparent focus:border-primary outline-none text-sm dark:text-white mb-3"></select>
             <input type="password" id="loginBoarderPin" inputmode="numeric" pattern="[0-9]*" placeholder="আপনার পিন দিন" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-transparent focus:border-primary text-center tracking-widest font-bold text-lg outline-none dark:text-white mb-2">
-            <p id="loginError" class="text-xs font-bold text-red-500 mb-3 h-4"></p>
+            <p id="loginError" class="text-xs font-bold text-red-500 mb-2 h-4"></p>
+            <div class="text-right mb-4">
+                <button onclick="forgotPasswordFlow()" class="text-[10px] text-primary font-bold hover:underline">পিন ভুলে গেছেন?</button>
+            </div>
             <div class="flex gap-3">
                 <button onclick="closeM('boarderLoginModal')" class="flex-1 bg-gray-200 dark:bg-gray-700 py-3 rounded-xl font-bold">বাতিল</button>
                 <button onclick="performBoarderLogin()" id="loginBtnTxt" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold shadow-md">লগইন</button>
@@ -273,18 +276,19 @@
                 <button onclick="closeM('profileModal')" class="w-8 h-8 bg-gray-100 dark:bg-gray-800 rounded-full flex justify-center items-center opacity-70"><i class="fas fa-times"></i></button>
             </div>
             <div class="grid grid-cols-2 gap-3 mb-4 shrink-0">
-                <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-2xl text-center"><p class="text-[10px] uppercase font-bold opacity-60">মোট জমা</p><h3 id="pDep" class="text-lg font-bold text-green-600 mt-1">৳০</h3></div>
+                <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-2xl text-center"><p class="text-[10px] uppercase font-bold opacity-60">চলতি মাসের জমা</p><h3 id="pDep" class="text-lg font-bold text-green-600 mt-1">৳০</h3></div>
                 <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-2xl text-center"><p class="text-[10px] uppercase font-bold opacity-60">মিল খরচ</p><h3 id="pExp" class="text-lg font-bold text-red-500 mt-1">৳০</h3></div>
                 <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-2xl text-center col-span-2 border-l-4 border-primary"><p class="text-[10px] uppercase font-bold opacity-60">বর্তমান ব্যালেন্স</p><h3 id="pBal" class="text-2xl font-bold mt-1 text-primary">৳০</h3></div>
             </div>
             <div class="flex-1 overflow-hidden flex flex-col min-h-0 mb-4">
-                <p class="text-[10px] font-bold uppercase opacity-60 mb-2 pl-1 shrink-0"><i class="fas fa-history mr-1"></i>সম্পূর্ণ মিল হিস্ট্রি</p>
+                <p class="text-[10px] font-bold uppercase opacity-60 mb-2 pl-1 shrink-0"><i class="fas fa-history mr-1"></i>চলতি মাসের মিল হিস্ট্রি</p>
                 <div id="pMealHistory" class="bg-gray-50 dark:bg-slate-800 rounded-xl p-3 overflow-y-auto space-y-1 text-xs flex-1 hide-scrollbar"></div>
             </div>
             <div id="mgrDepositBtn" class="hidden mb-2 shrink-0">
                 <button onclick="managerAddDepositFromProfile()" class="w-full bg-green-500 text-white py-3 rounded-xl text-sm font-bold active:scale-95 transition shadow"><i class="fas fa-plus-circle mr-2"></i>টাকা জমা দিন (ম্যানেজার)</button>
             </div>
-            <button onclick="changeBoarderPinFlow()" class="w-full bg-blue-50 dark:bg-blue-900/30 text-primary dark:text-blue-300 py-3 rounded-xl text-sm font-bold active:scale-95 transition shrink-0"><i class="fas fa-key mr-2 opacity-50"></i>নিজের পিন পরিবর্তন করুন</button>
+            <button onclick="changeBoarderPinFlow()" class="w-full bg-blue-50 dark:bg-blue-900/30 text-primary dark:text-blue-300 py-3 rounded-xl text-sm font-bold active:scale-95 transition shrink-0 mb-2"><i class="fas fa-key mr-2 opacity-50"></i>নিজের পিন পরিবর্তন করুন</button>
+            <button onclick="addEmailFlow()" class="w-full bg-gray-50 dark:bg-slate-800 text-gray-700 dark:text-gray-300 py-3 rounded-xl text-sm font-bold active:scale-95 transition shrink-0 border border-gray-200 dark:border-gray-700"><i class="fas fa-envelope mr-2 text-gray-400"></i>পাসওয়ার্ড রিকভারি ইমেইল যোগ করুন</button>
         </div>
     </div>
 
@@ -321,7 +325,7 @@
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px;background:#f8fafc;">
                 <div style="background:white;border-radius:14px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-top:3px solid #ef4444;">
-                    <p style="font-size:10px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0 0 5px;">মোট খরচ</p>
+                    <p style="font-size:10px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0 0 5px;">চলতি মাসের খরচ</p>
                     <h2 id="rExp" style="font-size:20px;font-weight:800;color:#ef4444;margin:0;"></h2>
                 </div>
                 <div style="background:white;border-radius:14px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-top:3px solid #f97316;">
@@ -355,10 +359,6 @@
                     </table>
                 </div>
             </div>
-            <div style="margin:0 16px 16px;background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:12px;padding:14px 16px;border:1px solid #f59e0b;">
-                <p style="font-size:13px;font-weight:800;color:#92400e;margin:0 0 6px;">⚠️ বকেয়া পরিশোধের অনুরোধ</p>
-                <p style="font-size:11px;color:#78350f;line-height:1.65;margin:0;">যাদের ব্যালেন্স লাল রঙে দেখাচ্ছে, তাদের যত দ্রুত সম্ভব বকেয়া টাকা পরিশোধ করার বিনীত অনুরোধ রইল। সময়মতো পরিশোধ করলে মেস পরিচালনা সহজ হয় এবং সবার জন্য সুবিধা হয়। আপনার সহযোগিতাই আমাদের শক্তি। 🙏</p>
-            </div>
             <div style="background:linear-gradient(135deg,#1e293b,#0f172a);padding:18px 20px;text-align:center;">
                 <p style="font-size:12px;color:#94a3b8;margin:0 0 6px;line-height:1.8;">ম্যানেজারের সেবায় কোনো ত্রুটি হয়ে থাকলে<br>ক্ষমাসুন্দর দৃষ্টিতে দেখবেন।<br>সবার সহযোগিতায় মেস পরিচালনা সম্ভব হচ্ছে।</p>
                 <p style="font-size:11px;color:#475569;margin:6px 0 0;">— আইডিয়াল হোম পরিবার, টিকরপাড়া —</p>
@@ -368,7 +368,7 @@
 
     <script>
         // NEW UPDATED SCRIPT URL
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwexrgqQOjI0ZPLfuO8DbaNb2AreFVm7FswQIV9xK9iN7ZTZA2dRF3d8RYaodjAG97SEw/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzFeYKpBUvY608FR7GC2dusaz6KH0JcYM9nmaenXdgPHh7waAG0FaSYKm_NjwvCjFhrrg/exec";
         
         let windowAppData = null, myChart = null, managerPin = null;
 
@@ -795,13 +795,13 @@
                 if(archData[0][0] && archData[0][0].toLowerCase().includes('month')) { archData = archData.slice(1); }
                 if(archData.length > 0) {
                     document.getElementById('archiveList').innerHTML = archData.map(a => `
-                        <a href="${a[1]}" target="_blank" class="flex items-center justify-between bg-indigo-50 dark:bg-indigo-900/30 p-3 rounded-2xl transition hover:scale-95 mb-2">
+                        <div onclick="window.open('${a[1]}', '_blank', 'noopener,noreferrer')" class="flex items-center justify-between bg-indigo-50 dark:bg-indigo-900/30 p-3 rounded-2xl transition hover:scale-95 mb-2 cursor-pointer">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center text-white"><i class="fas fa-file-pdf"></i></div>
                                 <div><p class="text-xs font-bold">${escapeHTML(a[0])}</p><p class="text-[9px] text-gray-500 uppercase">মাসিক রিপোর্ট</p></div>
                             </div>
-                            <i class="fas fa-download text-indigo-400"></i>
-                        </a>
+                            <i class="fas fa-external-link-alt text-indigo-400"></i>
+                        </div>
                     `).join('');
                 }
             }
@@ -938,6 +938,71 @@
                     }
                 } catch(e) { showToast("সার্ভার এরর!", true); }
             }, 50);
+        }
+
+        function addEmailFlow() {
+            closeM('profileModal');
+            document.getElementById('profileModalContent').classList.add('translate-y-full');
+            setTimeout(async () => {
+                let p = await askForPin("নিরাপত্তার জন্য বর্তমান পিন দিন:"); 
+                if(!p) return;
+                
+                let email = prompt("আপনার ইমেইল অ্যাড্রেস লিখুন (এখানে OTP যাবে):");
+                if(!email || !email.includes("@")) {
+                    showToast("সঠিক ইমেইল অ্যাড্রেস দেওয়া হয়নি!", true);
+                    return;
+                }
+                
+                try {
+                    showToast("সেভ করা হচ্ছে...");
+                    let res = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: "ADD_EMAIL", boarder_id: activeProfileId, boarder_pin: p, email: email})});
+                    showToast(await res.text());
+                } catch(e) { 
+                    showToast("সার্ভার এরর!", true); 
+                }
+            }, 50);
+        }
+
+        async function forgotPasswordFlow() {
+            let sel = document.getElementById('loginBoarderName');
+            let bId = sel.value; 
+            if(!bId) {
+                document.getElementById('loginError').innerText = "প্রথমে আপনার নাম সিলেক্ট করুন!";
+                return;
+            }
+            
+            closeM('boarderLoginModal');
+            
+            showConfirm("আপনার সেভ করা ইমেইলে একটি OTP পাঠানো হবে। আপনি কি নিশ্চিত?", async (resConfirm) => {
+                if(!resConfirm) return;
+                
+                showToast("OTP পাঠানো হচ্ছে... অপেক্ষা করুন");
+                try {
+                    let res = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: "SEND_OTP", boarder_id: bId})});
+                    let txt = await res.text();
+                    
+                    if(txt.includes("Error")) {
+                        showToast(txt, true);
+                        return;
+                    }
+                    showToast("OTP পাঠানো হয়েছে! ইমেইল চেক করুন।");
+                    
+                    setTimeout(async () => {
+                        let otpInput = prompt("আপনার ইমেইলে আসা ৬ ডিজিটের কোডটি দিন:");
+                        if(!otpInput) return;
+                        
+                        let newPin = prompt("আপনার নতুন ৪ ডিজিটের পিন দিন:");
+                        if(!newPin) return;
+                        
+                        showToast("যাচাই করা হচ্ছে...");
+                        let resetRes = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: "VERIFY_OTP_RESET_PIN", boarder_id: bId, otp: otpInput, new_pin: newPin})});
+                        showToast(await resetRes.text());
+                    }, 1000);
+                    
+                } catch(e) {
+                    showToast("ইন্টারনেট সমস্যা বা সার্ভার এরর!", true);
+                }
+            });
         }
 
         async function getAIAdvice() {
