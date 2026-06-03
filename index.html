@@ -368,7 +368,7 @@
 
     <script>
         // NEW UPDATED SCRIPT URL
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzTpXIs2Ih7FQAxk8GBeQnQj1UTSWWq9d8nGca0Td2FOnKQox3xstKehETFt_fk1nDPFQ/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzElaupeXSNeiM9ku6wyifMyYlb4hWZh9jCj3EhLAiwkHvJiSuUHKsUT8EEyevgRkDHLA/exec";
         
         let windowAppData = null, myChart = null, managerPin = null;
 
@@ -964,46 +964,40 @@
         }
 
         async function forgotPasswordFlow() {
-            let sel = document.getElementById('loginBoarderName');
-            let bId = sel.value; 
-            if(!bId) {
-                document.getElementById('loginError').innerText = "প্রথমে আপনার নাম সিলেক্ট করুন!";
-                return;
-            }
-            
-            closeM('boarderLoginModal');
-            
-            showConfirm("আপনার সেভ করা ইমেইলে একটি OTP পাঠানো হবে। আপনি কি নিশ্চিত?", async (resConfirm) => {
-                if(!resConfirm) return;
-                
-                showToast("OTP পাঠানো হচ্ছে... অপেক্ষা করুন");
-                try {
-                    let res = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: "SEND_OTP", boarder_id: bId})});
-                    let txt = await res.text();
-                    
-                    if(txt.includes("Error")) {
-                        showToast(txt, true);
-                        return;
-                    }
-                    showToast("OTP পাঠানো হয়েছে! ইমেইল চেক করুন।");
-                    
-                    setTimeout(async () => {
-                        let otpInput = prompt("আপনার ইমেইলে আসা ৬ ডিজিটের কোডটি দিন:");
-                        if(!otpInput) return;
-                        
-                        let newPin = prompt("আপনার নতুন ৪ ডিজিটের পিন দিন:");
-                        if(!newPin) return;
-                        
-                        showToast("যাচাই করা হচ্ছে...");
-                        let resetRes = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: "VERIFY_OTP_RESET_PIN", boarder_id: bId, otp: otpInput, new_pin: newPin})});
-                        showToast(await resetRes.text());
-                    }, 1000);
-                    
-                } catch(e) {
-                    showToast("ইন্টারনেট সমস্যা বা সার্ভার এরর!", true);
-                }
+    let sel = document.getElementById('loginBoarderName');
+    let bId = sel.value; 
+    if(!bId) {
+        document.getElementById('loginError').innerText = "প্রথমে আপনার নাম সিলেক্ট করুন!";
+        return;
+    }
+    
+    closeM('boarderLoginModal');
+    
+    showConfirm("আপনার সেভ করা ইমেইলে আপনার বর্তমান পিনটি পাঠানো হবে। আপনি কি নিশ্চিত?", async (resConfirm) => {
+        if(!resConfirm) return;
+        
+        showToast("ইমেইল পাঠানো হচ্ছে... অপেক্ষা করুন");
+        try {
+            // এখান থেকে headers লাইনটি মুছে দেওয়া হয়েছে
+            let res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: "FORGET_PASSWORD_EMAIL", 
+                    boarder_id: bId 
+                })
             });
+            let txt = await res.text();
+            showToast(txt);
+            
+            // ইমেইল সফলভাবে গেলে আবার লগইন মোডালটি ওপেন হবে
+            if(txt.includes("Success")) {
+                setTimeout(() => openModal('boarderLoginModal'), 2000);
+            }
+        } catch(e) {
+            showToast("সার্ভার এরর!", true);
         }
+    });
+}
 
         async function getAIAdvice() {
             const btn = document.getElementById('aiBtnText');
