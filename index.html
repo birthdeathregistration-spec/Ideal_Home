@@ -155,8 +155,8 @@
                     <button onclick="subTab('st1')" id="btn_st1" class="flex-1 py-3 text-primary border-b-2 border-primary transition font-bold">খরচ তালিকা</button>
                     <button onclick="subTab('st2')" id="btn_st2" class="flex-1 py-3 text-gray-500 dark:text-gray-400 transition">জমার হিসাব</button>
                 </div>
-                <div id="st1" class="p-2 overflow-x-auto max-h-[55vh] hide-scrollbar"><table class="w-full text-left text-sm"><tbody id="expBody" class="divide-y divide-gray-100 dark:divide-gray-700"></tbody></table></div>
-                <div id="st2" class="hidden p-2 overflow-x-auto max-h-[55vh] hide-scrollbar"><table class="w-full text-left text-sm"><tbody id="depBody" class="divide-y divide-gray-100 dark:divide-gray-700"></tbody></table></div>
+                <div id="st1" class="p-2 overflow-y-auto max-h-[70vh] pb-24 hide-scrollbar"><table class="w-full text-left text-sm"><tbody id="expBody" class="divide-y divide-gray-100 dark:divide-gray-700"></tbody></table></div>
+                <div id="st2" class="hidden p-2 overflow-y-auto max-h-[70vh] pb-24 hide-scrollbar"><table class="w-full text-left text-sm"><tbody id="depBody" class="divide-y divide-gray-100 dark:divide-gray-700"></tbody></table></div>
             </div>
         </div>
 
@@ -165,7 +165,7 @@
                 <h3 class="font-bold text-sm opacity-80"><i class="fas fa-users mr-2 text-indigo-500"></i>সকল বর্ডার</h3>
                 <input type="text" id="searchB" onkeyup="searchBoarderList()" placeholder="বর্ডার খুঁজুন..." class="w-1/2 p-2 rounded-xl bg-white dark:bg-slate-800 text-xs outline-none border dark:border-slate-700 focus:ring-1 focus:ring-primary">
             </div>
-            <div id="boarderList" class="space-y-4 pb-10"></div>
+            <div id="boarderList" class="space-y-4 pb-28"></div>
         </div>
 
         <div id="tab_archive" class="tab-content w-full space-y-4">
@@ -282,7 +282,7 @@
             </div>
             <div class="flex-1 overflow-hidden flex flex-col min-h-0 mb-4">
                 <p class="text-[10px] font-bold uppercase opacity-60 mb-2 pl-1 shrink-0"><i class="fas fa-history mr-1"></i>চলতি মাসের মিল হিস্ট্রি</p>
-                <div id="pMealHistory" class="bg-gray-50 dark:bg-slate-800 rounded-xl p-3 overflow-y-auto space-y-1 text-xs flex-1 hide-scrollbar"></div>
+                <div id="pMealHistory" class="bg-gray-50 dark:bg-slate-800 rounded-xl p-3 pb-12 overflow-y-auto space-y-1 text-xs flex-1 hide-scrollbar"></div>
             </div>
             <div id="mgrDepositBtn" class="hidden mb-2 shrink-0">
                 <button onclick="managerAddDepositFromProfile()" class="w-full bg-green-500 text-white py-3 rounded-xl text-sm font-bold active:scale-95 transition shadow"><i class="fas fa-plus-circle mr-2"></i>টাকা জমা দিন (ম্যানেজার)</button>
@@ -368,7 +368,7 @@
 
     <script>
         // NEW UPDATED SCRIPT URL
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzFeYKpBUvY608FR7GC2dusaz6KH0JcYM9nmaenXdgPHh7waAG0FaSYKm_NjwvCjFhrrg/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzTpXIs2Ih7FQAxk8GBeQnQj1UTSWWq9d8nGca0Td2FOnKQox3xstKehETFt_fk1nDPFQ/exec";
         
         let windowAppData = null, myChart = null, managerPin = null;
 
@@ -763,8 +763,8 @@
             document.getElementById('todayLunch').innerText = tlCount;
             document.getElementById('todayDinner').innerText = tdCount;
             document.getElementById('boarderList').innerHTML = boarderCards;
-            document.getElementById('expBody').innerHTML = tData.slice().reverse().slice(0, 10).map(t => `<tr class="border-b dark:border-slate-800"><td class="p-2">${escapeHTML(t[3])}</td><td class="p-2 text-right font-bold text-red-500">৳${t[4]}</td></tr>`).join('');
-            document.getElementById('depBody').innerHTML = dData.slice().reverse().slice(0, 10).map(t => `<tr class="border-b dark:border-slate-800"><td class="p-2">${escapeHTML(t[3])}</td><td class="p-2 text-right font-bold text-green-500">৳${t[4]}</td></tr>`).join('');
+            document.getElementById('expBody').innerHTML = tData.slice().reverse().map(t => `<tr class="border-b dark:border-slate-800"><td class="p-2"><div class="text-[10px] text-gray-400">${new Date(t[1]).toLocaleDateString('bn-BD', {day:'numeric', month:'short'})}</div>${escapeHTML(t[3])}</td><td class="p-2 text-right font-bold text-red-500">৳${t[4]}</td></tr>`).join('');
+            document.getElementById('depBody').innerHTML = dData.slice().reverse().map(t => `<tr class="border-b dark:border-slate-800"><td class="p-2"><div class="text-[10px] text-gray-400">${new Date(t[1]).toLocaleDateString('bn-BD', {day:'numeric', month:'short'})}</div>${escapeHTML(t[3])}</td><td class="p-2 text-right font-bold text-green-500">৳${t[4]}</td></tr>`).join('');
 
             let pbRaw = data.pendingBazaar || data.pending_bazaar || data.Pending_Bazaar || data.PendingBazaar || [];
             let pbData = [];
