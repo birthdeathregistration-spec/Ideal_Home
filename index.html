@@ -368,7 +368,7 @@
 
     <script>
         // NEW UPDATED SCRIPT URL
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzElaupeXSNeiM9ku6wyifMyYlb4hWZh9jCj3EhLAiwkHvJiSuUHKsUT8EEyevgRkDHLA/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw6IdTXV95MJUMjTp3ZyDDIHASz9zOIlQ6fgkrxWFru1h5TZKYsHmSgRbc0KV090w9SCg/exec";
         
         let windowAppData = null, myChart = null, managerPin = null;
 
@@ -763,8 +763,16 @@
             document.getElementById('todayLunch').innerText = tlCount;
             document.getElementById('todayDinner').innerText = tdCount;
             document.getElementById('boarderList').innerHTML = boarderCards;
-            document.getElementById('expBody').innerHTML = tData.slice().reverse().map(t => `<tr class="border-b dark:border-slate-800"><td class="p-2"><div class="text-[10px] text-gray-400">${new Date(t[1]).toLocaleDateString('bn-BD', {day:'numeric', month:'short'})}</div>${escapeHTML(t[3])}</td><td class="p-2 text-right font-bold text-red-500">৳${t[4]}</td></tr>`).join('');
-            document.getElementById('depBody').innerHTML = dData.slice().reverse().map(t => `<tr class="border-b dark:border-slate-800"><td class="p-2"><div class="text-[10px] text-gray-400">${new Date(t[1]).toLocaleDateString('bn-BD', {day:'numeric', month:'short'})}</div>${escapeHTML(t[3])}</td><td class="p-2 text-right font-bold text-green-500">৳${t[4]}</td></tr>`).join('');
+            
+            document.getElementById('expBody').innerHTML = tData.slice().reverse().map(t => {
+                let noteStr = t[5] ? `<br><span class="text-[9px] text-orange-500 opacity-80">(${escapeHTML(String(t[5]))})</span>` : "";
+                return `<tr class="border-b dark:border-slate-800"><td class="p-2"><div class="text-[10px] text-gray-400">${new Date(t[1]).toLocaleDateString('bn-BD', {day:'numeric', month:'short'})}</div>${escapeHTML(t[3])}${noteStr}</td><td class="p-2 text-right font-bold text-red-500">৳${t[4]}</td></tr>`;
+            }).join('');
+            
+            document.getElementById('depBody').innerHTML = dData.slice().reverse().map(t => {
+                let noteStr = t[5] ? `<br><span class="text-[9px] text-orange-500 opacity-80">(${escapeHTML(String(t[5]))})</span>` : "";
+                return `<tr class="border-b dark:border-slate-800"><td class="p-2"><div class="text-[10px] text-gray-400">${new Date(t[1]).toLocaleDateString('bn-BD', {day:'numeric', month:'short'})}</div>${escapeHTML(t[3])}${noteStr}</td><td class="p-2 text-right font-bold text-green-500">৳${t[4]}</td></tr>`;
+            }).join('');
 
             let pbRaw = data.pendingBazaar || data.pending_bazaar || data.Pending_Bazaar || data.PendingBazaar || [];
             let pbData = [];
@@ -964,40 +972,38 @@
         }
 
         async function forgotPasswordFlow() {
-    let sel = document.getElementById('loginBoarderName');
-    let bId = sel.value; 
-    if(!bId) {
-        document.getElementById('loginError').innerText = "প্রথমে আপনার নাম সিলেক্ট করুন!";
-        return;
-    }
-    
-    closeM('boarderLoginModal');
-    
-    showConfirm("আপনার সেভ করা ইমেইলে আপনার বর্তমান পিনটি পাঠানো হবে। আপনি কি নিশ্চিত?", async (resConfirm) => {
-        if(!resConfirm) return;
-        
-        showToast("ইমেইল পাঠানো হচ্ছে... অপেক্ষা করুন");
-        try {
-            // এখান থেকে headers লাইনটি মুছে দেওয়া হয়েছে
-            let res = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: "FORGET_PASSWORD_EMAIL", 
-                    boarder_id: bId 
-                })
-            });
-            let txt = await res.text();
-            showToast(txt);
-            
-            // ইমেইল সফলভাবে গেলে আবার লগইন মোডালটি ওপেন হবে
-            if(txt.includes("Success")) {
-                setTimeout(() => openModal('boarderLoginModal'), 2000);
+            let sel = document.getElementById('loginBoarderName');
+            let bId = sel.value; 
+            if(!bId) {
+                document.getElementById('loginError').innerText = "প্রথমে আপনার নাম সিলেক্ট করুন!";
+                return;
             }
-        } catch(e) {
-            showToast("সার্ভার এরর!", true);
+            
+            closeM('boarderLoginModal');
+            
+            showConfirm("আপনার সেভ করা ইমেইলে আপনার বর্তমান পিনটি পাঠানো হবে। আপনি কি নিশ্চিত?", async (resConfirm) => {
+                if(!resConfirm) return;
+                
+                showToast("ইমেইল পাঠানো হচ্ছে... অপেক্ষা করুন");
+                try {
+                    let res = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: "FORGET_PASSWORD_EMAIL", 
+                            boarder_id: bId 
+                        })
+                    });
+                    let txt = await res.text();
+                    showToast(txt);
+                    
+                    if(txt.includes("Success")) {
+                        setTimeout(() => openModal('boarderLoginModal'), 2000);
+                    }
+                } catch(e) {
+                    showToast("সার্ভার এরর!", true);
+                }
+            });
         }
-    });
-}
 
         async function getAIAdvice() {
             const btn = document.getElementById('aiBtnText');
