@@ -3,13 +3,27 @@
 <head>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#4f46e5">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <link class="apple-touch-icon" href="icon-192.png">
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>আইডিয়াল হোম, টিকরপাড়া | মেস ম্যানেজমেন্ট</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://script.google.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    
+    <link rel="preload" href="https://script.google.com/macros/s/AKfycbw6IdTXV95MJUMjTp3ZyDDIHASz9zOIlQ6fgkrxWFru1h5TZKYsHmSgRbc0KV090w9SCg/exec?action=get_initial_data" as="fetch" crossorigin>
+    <script>
+        // Kick off parallel API request at t=0ms while browser is downloading stylesheets and assets
+        window.__apiPromise = fetch("https://script.google.com/macros/s/AKfycbw6IdTXV95MJUMjTp3ZyDDIHASz9zOIlQ6fgkrxWFru1h5TZKYsHmSgRbc0KV090w9SCg/exec?action=get_initial_data")
+            .then(r => r.ok ? r.json() : null)
+            .catch(() => null);
+    </script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -25,7 +39,7 @@
         }
     </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
@@ -64,7 +78,7 @@
     <div id="splashScreen" class="fixed inset-0 bg-primary z-[999] flex flex-col items-center justify-center text-white transition-opacity duration-500">
         <i class="fas fa-home text-7xl mb-4 animate-bounce"></i>
         <h1 class="text-3xl font-bold text-center">আইডিয়াল হোম<br><span class="text-lg">টিকরপাড়া</span></h1>
-        <p class="mt-2 text-sm opacity-80 uppercase tracking-widest italic">Students Mess Management</p>
+        <p class="mt-10 text-sm opacity-80 uppercase tracking-widest italic">Students Mess Management</p>
         <div class="mt-10 flex gap-2" id="splashLoader"><div class="w-3 h-3 bg-white rounded-full animate-pulse"></div><div class="w-3 h-3 bg-white rounded-full animate-pulse delay-75"></div><div class="w-3 h-3 bg-white rounded-full animate-pulse delay-150"></div></div>
     </div>
 
@@ -98,6 +112,37 @@
             <div class="mb-5 animate-slide-up flex justify-between items-end glass p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
                 <div><h2 class="text-2xl font-bold text-gray-800 dark:text-white"><span id="greeting">হ্যালো</span> 👋</h2><p class="text-xs opacity-70">আজকের মেস সামারি</p></div>
                 <div class="text-right"><p class="text-[9px] uppercase font-bold text-yellow-500">ম্যানেজার</p><p id="mgrName" class="text-sm font-bold text-primary dark:text-indigo-400">...</p></div>
+            </div>
+
+            <!-- MY PERSONAL SUMMARY CARD (FOR LOGGED-IN BOARDER) -->
+            <div id="myPersonalCard" class="hidden glass p-4 rounded-3xl shadow-md border-l-4 border-emerald-500 animate-slide-up bg-emerald-50/40 dark:bg-emerald-950/20 mb-5">
+                <div class="flex justify-between items-center mb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <h3 class="font-bold text-xs text-gray-800 dark:text-gray-100"><span id="myCardName">আমার হিসাব</span> <span class="text-[10px] text-gray-400 font-normal">(চলতি মাস)</span></h3>
+                    </div>
+                    <button onclick="if(localStorage.getItem('boarderId')) openProfile(localStorage.getItem('boarderId'))" class="text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-xl font-bold shadow-sm transition flex items-center gap-1 active:scale-95">
+                        <i class="fas fa-id-card text-[10px]"></i> পূর্ণ বিবরণী
+                    </button>
+                </div>
+                <div class="grid grid-cols-4 gap-2 text-center pt-1">
+                    <div class="p-2 rounded-2xl bg-white dark:bg-darkCard shadow-sm">
+                        <p class="text-[9px] text-gray-400 font-bold uppercase">জমা</p>
+                        <p id="myCardDep" class="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">৳০</p>
+                    </div>
+                    <div class="p-2 rounded-2xl bg-white dark:bg-darkCard shadow-sm">
+                        <p class="text-[9px] text-gray-400 font-bold uppercase">মিল</p>
+                        <p id="myCardMeals" class="text-xs font-bold text-blue-600 dark:text-blue-400 mt-0.5">০ টি</p>
+                    </div>
+                    <div class="p-2 rounded-2xl bg-white dark:bg-darkCard shadow-sm">
+                        <p class="text-[9px] text-gray-400 font-bold uppercase">খরচ</p>
+                        <p id="myCardCost" class="text-xs font-bold text-orange-500 mt-0.5">৳০</p>
+                    </div>
+                    <div class="p-2 rounded-2xl bg-white dark:bg-darkCard shadow-sm">
+                        <p class="text-[9px] text-gray-400 font-bold uppercase">ব্যালেন্স</p>
+                        <p id="myCardBal" class="text-xs font-bold text-primary mt-0.5">৳০</p>
+                    </div>
+                </div>
             </div>
 
             <div id="noticeCard" class="hidden glass p-4 rounded-3xl shadow-sm mb-5 border-l-4 border-purple-500 animate-slide-up" style="animation-delay: 30ms">
@@ -203,10 +248,14 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <button onclick="generateReport()" class="col-span-2 bg-rose-500 text-white py-4 rounded-3xl font-bold shadow-md"><i class="fas fa-file-pdf mr-2"></i>চলতি মাসের হিসাব (PDF)</button>
+                    <button onclick="openWhatsAppBroadcaster()" class="col-span-2 bg-emerald-700 hover:bg-emerald-800 text-white py-3 rounded-2xl font-bold shadow active:scale-95 transition flex items-center justify-center gap-2"><i class="fab fa-whatsapp text-lg"></i>সবার WhatsApp-এ মাসিক ব্যালেন্স পাঠান</button>
+                    <button onclick="sendLowBalanceAlerts()" class="col-span-2 bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-2xl font-bold shadow active:scale-95 transition flex items-center justify-center gap-2"><i class="fas fa-exclamation-triangle text-lg"></i>লো-ব্যালেন্স বর্ডারদের সতর্কবার্তা পাঠান</button>
+                    <button onclick="openWhatsAppWebModal()" class="col-span-2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-2xl font-bold shadow active:scale-95 transition flex items-center justify-center gap-2"><i class="fas fa-qrcode text-lg"></i>WhatsApp বট কানেক্ট / QR Code & পেয়ারিং</button>
                     <button onclick="showAction('ASSIGN_BAZAAR')" class="col-span-2 bg-yellow-500 text-white py-3 rounded-2xl font-bold shadow"><i class="fas fa-user-tag mr-2"></i>পরবর্তী বাজারের দায়িত্ব দিন</button>
                     <button onclick="showAction('UPDATE_NOTICE')" class="col-span-2 bg-purple-500 text-white py-3 rounded-2xl font-bold shadow"><i class="fas fa-bullhorn mr-2"></i>নোটিশ আপডেট করুন</button>
                     <button onclick="showAction('MANAGER_EDIT_MEAL')" class="col-span-2 bg-indigo-500 text-white py-3 rounded-2xl font-bold shadow"><i class="fas fa-edit mr-2"></i>বর্ডারের মিল স্ট্যাটাস এডিট</button>
                     <button onclick="showDailyMeal()" class="col-span-2 bg-teal-600 text-white p-3 rounded-2xl font-bold shadow">ম্যানুয়াল মিল এন্ট্রি</button>
+                    <button onclick="showAction('EDIT_BOARDER')" class="col-span-2 bg-emerald-600 text-white p-3 rounded-2xl font-bold shadow"><i class="fas fa-user-edit mr-2"></i>বর্ডারের তথ্য / অভিভাবক নম্বর এডিট</button>
                     <button onclick="showAction('ADD_DEPOSIT')" class="bg-blue-600 text-white p-3 rounded-xl text-xs font-bold shadow">টাকা জমা</button>
                     <button onclick="showAction('ADD_TRANSACTION')" class="bg-orange-500 text-white p-3 rounded-xl text-xs font-bold shadow">খরচ যোগ</button>
                     <button onclick="showAction('ADD_BOARDER')" class="bg-gray-600 text-white p-3 rounded-xl text-xs font-bold shadow">বর্ডার যোগ</button>
@@ -238,7 +287,7 @@
             <h3 class="font-bold text-lg mb-2">বর্ডার লগইন</h3>
             <p class="text-[11px] text-gray-500 dark:text-gray-400 mb-4">হিস্ট্রি ও বিস্তারিত দেখতে লগইন করুন</p>
             <select id="loginBoarderName" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-transparent focus:border-primary outline-none text-sm dark:text-white mb-3"></select>
-            <input type="password" id="loginBoarderPin" inputmode="numeric" pattern="[0-9]*" placeholder="আপনার পিন দিন" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-transparent focus:border-primary text-center tracking-widest font-bold text-lg outline-none dark:text-white mb-2">
+            <input type="password" id="loginBoarderPin" inputmode="numeric" pattern="[0-9]*" placeholder="আপনার পিন দিন" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-transparent focus:border-primary text-center tracking-widest font-bold text-lg outline-none dark:text-white mb-2" onkeydown="if(event.key==='Enter') performBoarderLogin()">
             <p id="loginError" class="text-xs font-bold text-red-500 mb-2 h-4"></p>
             <div class="text-right mb-4">
                 <button onclick="forgotPasswordFlow()" class="text-[10px] text-primary font-bold hover:underline">পিন ভুলে গেছেন?</button>
@@ -253,7 +302,7 @@
     <div id="pinModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-[250]">
         <div class="bg-white dark:bg-darkCard p-6 rounded-3xl w-full max-w-xs shadow-2xl text-center">
             <h3 id="pinTitle" class="font-bold text-sm mb-4">পিন দিন</h3>
-            <input type="password" id="pinInput" inputmode="numeric" pattern="[0-9]*" placeholder="****" class="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-primary/30 text-center tracking-[0.5em] font-bold text-2xl focus:outline-none focus:border-primary dark:text-white mb-5">
+            <input type="password" id="pinInput" inputmode="numeric" pattern="[0-9]*" placeholder="****" class="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-primary/30 text-center tracking-[0.5em] font-bold text-2xl focus:outline-none focus:border-primary dark:text-white mb-5" onkeydown="if(event.key==='Enter') resolvePin()">
             <div class="flex gap-3"><button onclick="closePin()" class="flex-1 bg-gray-200 dark:bg-gray-700 py-3 rounded-xl font-bold">বাতিল</button><button onclick="resolvePin()" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold shadow-md">ওকে</button></div>
         </div>
     </div>
@@ -273,7 +322,7 @@
         <div id="profileModalContent" class="bg-white dark:bg-darkCard p-6 rounded-t-3xl sm:rounded-3xl w-full max-w-sm shadow-2xl transition-transform transform translate-y-full flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center mb-4 shrink-0">
                 <div class="flex items-center gap-3"><div id="pAvatar" class="w-10 h-10 rounded-full text-white flex justify-center items-center font-bold shadow-md"></div><h2 id="pName" class="text-xl font-bold">...</h2></div>
-                <button onclick="closeM('profileModal')" class="w-8 h-8 bg-gray-100 dark:bg-gray-800 rounded-full flex justify-center items-center opacity-70"><i class="fas fa-times"></i></button>
+                <button onclick="closeProfileModal()" class="w-8 h-8 bg-gray-100 dark:bg-gray-800 rounded-full flex justify-center items-center opacity-70"><i class="fas fa-times"></i></button>
             </div>
             <div class="grid grid-cols-2 gap-3 mb-4 shrink-0">
                 <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-2xl text-center"><p class="text-[10px] uppercase font-bold opacity-60">চলতি মাসের জমা</p><h3 id="pDep" class="text-lg font-bold text-green-600 mt-1">৳০</h3></div>
@@ -311,8 +360,15 @@
 
     <div id="reportM" class="fixed inset-0 bg-gray-100 z-[300] hidden overflow-y-auto">
         <div class="flex justify-between items-center p-4 print-hidden bg-white shadow-sm sticky top-0 z-10">
-            <button onclick="closeM('reportM')" class="text-red-500 font-bold px-4 py-2 bg-red-50 rounded-xl flex items-center gap-2"><i class="fas fa-arrow-left"></i> ফিরে যান</button>
-            <button onclick="window.print()" class="bg-primary text-white px-5 py-2 rounded-xl font-bold shadow flex items-center gap-2"><i class="fas fa-file-pdf"></i> PDF সেভ</button>
+            <button onclick="closeM('reportM')" class="text-red-500 font-bold px-3 py-2 bg-red-50 rounded-xl flex items-center gap-2 text-sm"><i class="fas fa-arrow-left"></i> ব্যাক</button>
+            <div class="flex gap-2">
+                <!-- এই নতুন বাটনটি আর্কাইভে সেভ করবে -->
+                <button onclick="manualArchive()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl text-sm font-bold shadow flex items-center gap-1 transition"><i class="fas fa-box-archive"></i> আর্কাইভে সেভ</button>
+                <button onclick="shareReportToWhatsApp()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-sm font-bold shadow flex items-center gap-1 transition"><i class="fab fa-whatsapp"></i> গ্রুপে পাঠান</button>
+                <button onclick="openWhatsAppBroadcaster()" class="bg-teal-600 hover:bg-teal-700 text-white px-3 py-2 rounded-xl text-sm font-bold shadow flex items-center gap-1 transition"><i class="fab fa-whatsapp"></i> বর্ডারদের পাঠান</button>
+                <!-- এটি আগের মতই পিডিএফ সেভ বা প্রিন্ট করবে -->
+                <button onclick="window.print()" class="bg-primary hover:bg-blue-700 text-white px-3 py-2 rounded-xl text-sm font-bold shadow flex items-center gap-1 transition"><i class="fas fa-download"></i> PDF</button>
+            </div>
         </div>
         <div id="printArea" class="max-w-lg mx-auto bg-white my-4 rounded-2xl shadow-xl overflow-hidden">
             <div style="background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%);padding:28px 24px 20px;color:white;text-align:center;">
@@ -356,6 +412,7 @@
                             </tr>
                         </thead>
                         <tbody id="reportTable"></tbody>
+                        <tfoot id="reportTableFoot"></tfoot>
                     </table>
                 </div>
             </div>
@@ -366,11 +423,278 @@
         </div>
     </div>
 
+    <div id="pdfModal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden flex-col z-[1500]">
+        <div class="flex justify-between items-center p-4 bg-gray-900 border-b border-gray-700 shadow-lg shrink-0">
+            <h3 class="font-bold text-sm text-white"><i class="fas fa-file-pdf text-red-500 mr-2"></i>মাসিক রিপোর্ট</h3>
+            <div class="flex items-center gap-2">
+                <a id="pdfOpenDirect" href="#" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1.5 rounded-xl font-bold flex items-center gap-1 shadow transition"><i class="fas fa-external-link-alt"></i> ব্রাউজারে খুলুন</a>
+                <button onclick="closePdfModal()" class="bg-red-600 hover:bg-red-700 text-white w-8 h-8 rounded-full flex items-center justify-center transition shadow-lg">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="flex-1 w-full bg-white relative overflow-hidden">
+            <div id="pdfLoading" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 z-10">
+                <i class="fas fa-spinner fa-spin text-4xl text-indigo-500 mb-3"></i>
+                <p class="text-xs font-bold text-gray-500">রিপোর্ট লোড হচ্ছে...</p>
+            </div>
+            <iframe id="pdfFrame" class="w-full h-full border-0 relative z-20" onload="document.getElementById('pdfLoading').style.display='none'" src=""></iframe>
+        </div>
+    </div>
+
+    <!-- WHATSAPP ACTION PROMPT MODAL (100% Anti-Popup-Block) -->
+    <div id="waActionModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-[400]">
+        <div class="bg-white dark:bg-darkCard p-6 rounded-3xl w-full max-w-sm shadow-2xl text-center space-y-3 animate-slide-up">
+            <div class="w-14 h-14 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-sm">
+                <i class="fab fa-whatsapp"></i>
+            </div>
+            <h3 id="waActionTitle" class="font-bold text-base text-gray-800 dark:text-gray-100">টাকা জমা সম্পন্ন হয়েছে!</h3>
+            <p id="waActionSubtitle" class="text-xs text-gray-500 dark:text-gray-400">সদস্যের হোয়াটসঅ্যাপে রসিদ পাঠাতে নিচের বাটনে চাপ দিন:</p>
+            <div id="waActionPreview" class="bg-gray-50 dark:bg-slate-800/80 p-3 rounded-2xl text-left text-[11px] text-gray-700 dark:text-gray-300 max-h-36 overflow-y-auto whitespace-pre-line border dark:border-slate-700 leading-relaxed"></div>
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="closeM('waActionModal')" class="flex-1 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 py-3 rounded-xl font-bold text-xs text-gray-600 dark:text-gray-300 transition">পরে পাঠাব</button>
+                <a id="waActionBtn" href="#" target="_blank" onclick="closeM('waActionModal')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition active:scale-95">
+                    <i class="fab fa-whatsapp text-sm"></i> এখনই পাঠান
+                </a>
+            </div>
+            <p class="text-[9px] text-gray-400 mt-1">💡 বাটনে চাপলে সরাসরি হোয়াটসঅ্যাপ খুলে যাবে এবং আপনি এক ক্লিকে মেসেজটি পাঠিয়ে দিতে পারবেন।</p>
+        </div>
+    </div>
+
+    <!-- WHATSAPP BROADCASTER MODAL -->
+    <div id="whatsappBroadcastModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-[350]">
+        <div class="bg-white dark:bg-darkCard p-5 rounded-3xl w-full max-w-md max-h-[85vh] flex flex-col shadow-2xl">
+            <div class="flex justify-between items-center pb-3 border-b dark:border-gray-700">
+                <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+                        <i class="fab fa-whatsapp text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm text-gray-800 dark:text-gray-100">হোয়াটসঅ্যাপ বার্তা প্রেরক</h3>
+                        <p class="text-[10px] text-gray-500">মেস গ্রুপ অথবা সদস্যদের ব্যক্তিগত বার্তা</p>
+                    </div>
+                </div>
+                <button onclick="closeM('whatsappBroadcastModal')" class="w-8 h-8 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 transition"><i class="fas fa-times text-xs"></i></button>
+            </div>
+
+            <!-- Group Quick Share -->
+            <div class="bg-emerald-50 dark:bg-emerald-950/30 p-3 rounded-2xl border border-emerald-200 dark:border-emerald-800/60 my-3">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="font-bold text-xs text-emerald-800 dark:text-emerald-300">📢 মেস গ্রুপে একবারে সবার হিসাব</p>
+                        <p class="text-[10px] text-emerald-600 dark:text-emerald-400">সকলের মিল, খরচ ও ব্যালেন্স ১ ক্লিকে মেস গ্রুপে পোস্ট করুন</p>
+                    </div>
+                    <button onclick="shareReportToWhatsApp()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow flex items-center gap-1 transition shrink-0 ml-2"><i class="fab fa-whatsapp"></i> গ্রুপে পাঠান</button>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center mb-2 px-1">
+                <p class="text-[11px] font-bold text-gray-600 dark:text-gray-300 uppercase">বর্ডারদের ব্যক্তিগত মেসেজ তালিকা</p>
+                <span id="waBroadcastCount" class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full"></span>
+            </div>
+
+            <!-- Boarders List for 1-Click WhatsApp -->
+            <div id="waBoarderList" class="flex-1 overflow-y-auto space-y-2 pr-1 hide-scrollbar min-h-0 mb-3">
+                <!-- Dynamically populated -->
+            </div>
+
+            <div class="pt-2 border-t dark:border-gray-700 flex justify-between items-center text-[10px] text-gray-400">
+                <span><i class="fas fa-shield-alt text-emerald-500 mr-1"></i>মেটার অফিশিয়াল সিকিউর লিঙ্ক</span>
+                <button onclick="closeM('whatsappBroadcastModal')" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 text-gray-700 dark:text-gray-200 text-xs font-bold px-4 py-2 rounded-xl transition">বন্ধ করুন</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- WHATSAPP WEB CONNECT MODAL -->
+    <div id="whatsappWebModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-[350]">
+        <div class="bg-white dark:bg-darkCard p-6 rounded-3xl w-full max-w-md shadow-2xl space-y-4 animate-slide-up max-h-[92vh] overflow-y-auto hide-scrollbar">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center border-b dark:border-slate-700 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl font-bold shadow-sm">
+                        <i class="fab fa-whatsapp"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm text-gray-800 dark:text-gray-100">আইডিয়াল হোম — WhatsApp ইঞ্জিন</h3>
+                        <p class="text-[10px] text-gray-500 dark:text-gray-400">২৪/৭ ক্লাউড অটোমেশন ও সেশন কানেকশন</p>
+                    </div>
+                </div>
+                <button onclick="closeWhatsAppWebModal()" class="w-8 h-8 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 transition"><i class="fas fa-times text-xs"></i></button>
+            </div>
+
+            <!-- Live Status Card -->
+            <div id="waEngineStatusCard" class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border dark:border-slate-700 text-center space-y-1">
+                <div class="flex items-center justify-center gap-2">
+                    <span id="waEngineStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span id="waEngineStatusTitle" class="font-bold text-xs text-gray-800 dark:text-gray-200">কানেকশন চেক হচ্ছে...</span>
+                </div>
+                <p id="waEngineStatusSubtitle" class="text-[11px] text-gray-500 dark:text-gray-400">সার্ভারের সাথে সিঙ্ক করা হচ্ছে</p>
+            </div>
+
+            <!-- Dual Connection Tabs (Shown when disconnected) -->
+            <div id="waConnectTabs" class="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl gap-1 text-xs font-bold">
+                <button type="button" id="tabBtnQr" onclick="switchWaModalTab('qr')" class="flex-1 py-2 rounded-xl transition bg-white dark:bg-darkCard text-emerald-600 dark:text-emerald-400 shadow-sm flex items-center justify-center gap-1.5">
+                    <i class="fas fa-qrcode"></i> ১. QR স্ক্যান
+                </button>
+                <button type="button" id="tabBtnPair" onclick="switchWaModalTab('pair')" class="flex-1 py-2 rounded-xl transition text-gray-500 dark:text-gray-400 hover:text-gray-800 flex items-center justify-center gap-1.5">
+                    <i class="fas fa-key"></i> ২. কোড দিয়ে লিংক
+                </button>
+            </div>
+
+            <!-- TAB 1: QR Code Area (Shown when disconnected) -->
+            <div id="waEngineQrBox" class="text-center space-y-3">
+                <div class="inline-block p-3 bg-white rounded-2xl shadow-lg border-2 border-emerald-500/30 relative">
+                    <img id="waLiveQrImg" src="" alt="WhatsApp QR Code" class="w-56 h-56 mx-auto object-contain">
+                    <div id="waQrLoadingOverlay" class="absolute inset-0 bg-white/95 flex flex-col items-center justify-center rounded-2xl hidden">
+                        <i class="fas fa-circle-notch fa-spin text-3xl text-emerald-600 mb-2"></i>
+                        <span class="text-xs font-bold text-gray-700">নতুন QR কোড তৈরি হচ্ছে...</span>
+                    </div>
+                </div>
+
+                <!-- 20-Second QR Freshness Countdown Bar -->
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center text-[10px] text-gray-500 dark:text-gray-400 px-1">
+                        <span>⏳ কিউআর কোডের মেয়াদ:</span>
+                        <span id="waQrTimerText" class="font-bold text-emerald-600 dark:text-emerald-400">২০ সেকেন্ড বাকি</span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                        <div id="waQrTimerBar" class="bg-gradient-to-r from-emerald-500 to-teal-500 h-full w-full transition-all duration-1000"></div>
+                    </div>
+                </div>
+
+                <!-- Fresh QR Generator Button -->
+                <button type="button" onclick="generateFreshQrCode()" id="btnFreshQr" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs shadow transition active:scale-95 flex items-center justify-center gap-1.5">
+                    <i class="fas fa-sync-alt"></i> 🔄 সম্পূর্ণ নতুন QR তৈরি করুন (মেয়াদ ২০ সে.)
+                </button>
+
+                <div class="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 text-left text-xs text-gray-600 dark:text-gray-300 space-y-1">
+                    <p class="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                        <i class="fas fa-info-circle"></i> সফলভাবে স্ক্যান করার নিয়ম:
+                    </p>
+                    <p class="text-[11px]">১. প্রথমে ফোনে WhatsApp খুলে <strong>Linked Devices > Link a Device</strong> চাপুন।</p>
+                    <p class="text-[11px]">২. এরপর <strong>"নতুন QR তৈরি করুন"</strong> বাটনে চাপ দিয়ে সাথে সাথে স্ক্যান করুন।</p>
+                </div>
+            </div>
+
+            <!-- TAB 2: Pairing Code Area (Alternative to camera scan) -->
+            <div id="waEnginePairBox" class="text-center space-y-3.5 hidden">
+                <div class="p-3 rounded-2xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/40 text-left text-xs text-gray-600 dark:text-gray-300 space-y-1">
+                    <p class="font-bold text-blue-700 dark:text-blue-400 flex items-center gap-1.5">
+                        <i class="fas fa-mobile-alt"></i> ফোন নম্বর দিয়ে সহজ লিংক (৮ ডিজিট কোড):
+                    </p>
+                    <p class="text-[11px]">ক্যামেরায় স্ক্যান করতে সমস্যা হলে আপনার ফোন নম্বরে একটি ৮ ডিজিটের ওয়ান-টাইম কোড নিয়ে সরাসরি কানেক্ট করুন। কোনো ক্যামেরা বা স্ক্যান লাগবে না!</p>
+                </div>
+
+                <div class="space-y-2 text-left">
+                    <label class="text-[11px] font-bold text-gray-700 dark:text-gray-300 block">আপনার WhatsApp মোবাইল নম্বর:</label>
+                    <div class="flex gap-2">
+                        <input id="waPairPhoneInput" type="text" placeholder="যেমন: 01715455342" class="flex-1 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 text-xs font-mono outline-none focus:border-emerald-500">
+                        <button type="button" onclick="requestWaPairingCode()" id="btnGetPairCode" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow active:scale-95 transition flex items-center gap-1.5 whitespace-nowrap">
+                            <i class="fas fa-key"></i> কোড আনুন
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pairing Code Result Display -->
+                <div id="waPairCodeDisplay" class="p-4 rounded-2xl bg-slate-900 border border-slate-700 text-white space-y-2 hidden">
+                    <span class="text-[10px] text-gray-400 uppercase tracking-widest block font-bold">আপনার WhatsApp পেয়ারিং কোড:</span>
+                    <div class="flex items-center justify-center gap-3">
+                        <span id="waPairCodeVal" class="text-2xl font-mono font-black text-emerald-400 tracking-widest">----</span>
+                        <button type="button" onclick="copyWaPairCode()" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-[11px] font-bold shadow flex items-center gap-1">
+                            <i class="fas fa-copy"></i> কপি
+                        </button>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-800 text-[11px] text-left text-gray-300 space-y-1">
+                        <p class="font-bold text-emerald-400">📱 ফোনে কোড দেওয়ার নিয়ম:</p>
+                        <p>১. ফোনে WhatsApp খুলে <strong>Linked Devices > Link a Device</strong>-এ যান।</p>
+                        <p>২. নিচে <strong>"Link with phone number instead"</strong> চাপুন।</p>
+                        <p>৩. উপরের এই কোডটি সেখানে লিখুন—মুহূর্তেই কানেক্ট হয়ে যাবে!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Connected Control Panel (Shown when connected) -->
+            <div id="waEngineConnectedBox" class="space-y-3.5 hidden">
+                <div class="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-xs space-y-1 text-left">
+                    <div class="flex items-center gap-2 font-bold text-emerald-800 dark:text-emerald-300">
+                        <i class="fas fa-check-circle text-emerald-600"></i>
+                        <span>WhatsApp ইঞ্জিন সক্রিয় ও সেশন সংরক্ষিত!</span>
+                    </div>
+                    <p class="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed">
+                        মেসের টাকা জমা, বাজারের দায়িত্ব এবং অন্যান্য নোটিশ একা একাই এই ইঞ্জিন থেকে নিরাপদ বিরতিতে চলে যাবে।
+                    </p>
+                </div>
+
+                <!-- Test Message Sender -->
+                <div class="p-3.5 rounded-2xl bg-gray-50 dark:bg-slate-800/80 border dark:border-slate-700 space-y-2 text-left">
+                    <span class="text-[11px] font-bold text-gray-700 dark:text-gray-300 block">টেস্ট এসএমএস পাঠান:</span>
+                    <input id="waEngineTestPhone" type="text" placeholder="মোবাইল নম্বর (যেমন: 01715455342)" class="w-full p-2.5 rounded-xl bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 text-xs outline-none focus:border-emerald-500">
+                    <input id="waEngineTestMsg" type="text" placeholder="মেসেজ" value="আইডিয়াল হোম মেসে স্বাগতম! WhatsApp ইঞ্জিন টেস্ট সফল হয়েছে।" class="w-full p-2.5 rounded-xl bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 text-xs outline-none focus:border-emerald-500">
+                    <button type="button" onclick="sendEngineLiveTestSms()" id="btnEngineSendTest" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow transition active:scale-95 flex items-center justify-center gap-1.5">
+                        <i class="fas fa-paper-plane"></i> এসএমএস পাঠান
+                    </button>
+                    <p id="waEngineTestFeedback" class="text-[11px] text-center hidden"></p>
+                </div>
+
+                <!-- Disconnect / Reset Session -->
+                <button type="button" onclick="resetEngineLiveSession()" class="w-full py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800 text-xs font-bold transition flex items-center justify-center gap-1.5">
+                    <i class="fas fa-trash-alt"></i> সেশন রিসেট (নতুন করে কানেক্ট করুন)
+                </button>
+            </div>
+
+            <!-- Footer / Refresh -->
+            <div class="flex gap-2 pt-2 border-t dark:border-slate-700">
+                <button type="button" onclick="closeWhatsAppWebModal()" class="flex-1 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 py-2.5 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300">বন্ধ করুন</button>
+                <button type="button" onclick="pollLiveWaEngine(true)" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold shadow flex items-center justify-center gap-1.5 transition">
+                    <i class="fas fa-sync-alt"></i> রিফ্রেশ করুন
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // NEW UPDATED SCRIPT URL
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw6IdTXV95MJUMjTp3ZyDDIHASz9zOIlQ6fgkrxWFru1h5TZKYsHmSgRbc0KV090w9SCg/exec";
         
         let windowAppData = null, myChart = null, managerPin = null;
+
+        // ===== CLIENT-SIDE OFFLINE CACHING HELPERS =====
+        const CACHE_KEY = 'idealHome_appData_v1';
+        const CACHE_TIME_KEY = 'idealHome_appData_time';
+
+        function saveToLocalCache(data) {
+            try {
+                if (data && data.boarders) {
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                    localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+                }
+            } catch (e) {
+                console.warn('LocalStorage save failed:', e);
+            }
+        }
+
+        function getFromLocalCache() {
+            try {
+                let raw = localStorage.getItem(CACHE_KEY);
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function dismissSplash(immediate = false) {
+            let splash = document.getElementById('splashScreen');
+            if (splash) {
+                if (immediate) {
+                    splash.style.display = 'none';
+                    if (splash.parentNode) splash.remove();
+                } else {
+                    splash.style.pointerEvents = 'none';
+                    splash.style.opacity = '0';
+                    setTimeout(() => { if (splash && splash.parentNode) splash.remove(); }, 250);
+                }
+            }
+        }
 
         const hour = new Date().getHours();
         document.getElementById('greeting').innerText = (hour >= 5 && hour < 12) ? "শুভ সকাল" : (hour >= 12 && hour < 17) ? "শুভ দুপুর" : (hour >= 17 && hour < 20) ? "শুভ বিকাল" : "শুভ রাত্রি";
@@ -412,6 +736,10 @@
             );
         }
 
+        function normStr(s) {
+            return String(s || "").trim().replace(/\s+/g, " ").toLowerCase();
+        }
+
         function parseSheetDate(dStr) {
             if(!dStr) return null;
             let ds = String(dStr).trim().split('T')[0].split(' ')[0]; 
@@ -439,6 +767,116 @@
             let now = new Date();
             return d.getUTCMonth() === now.getMonth() && d.getUTCFullYear() === now.getFullYear();
         }
+
+        function calculateMonthlyStats(d) {
+            if (!d || !d.boarders) {
+                return { memberData: [], totalMeals: 0, totalExp: 0, totalDeposit: 0, totalCost: 0, mealRate: 0, unassignedMeals: 0 };
+            }
+            let currentMeals = (d.meals || []).slice(1).filter(r => isCurrentMonth(r[1]));
+            let currentDeposits = (d.deposits || []).slice(1).filter(r => isCurrentMonth(r[1]));
+            let currentExpenses = (d.transactions || []).slice(1).filter(r => isCurrentMonth(r[1]));
+
+            let totalExp = currentExpenses.reduce((s, r) => s + (Number(r[4]) || 0), 0);
+            let boarderMap = {};
+            let memberData = (d.boarders.slice(1) || []).map(b => {
+                let bId = String(b[0] || "").trim();
+                let bName = String(b[1] || "").trim();
+                let record = {
+                    id: bId,
+                    name: bName,
+                    phone: b[7] ? String(b[7]).trim() : "",
+                    guardian: b[8] ? String(b[8]).trim() : "",
+                    lunchStatus: b[3],
+                    dinnerStatus: b[4],
+                    meals: 0,
+                    deposit: 0,
+                    cost: 0,
+                    balance: 0,
+                    isGuest: false
+                };
+                if (bId) boarderMap["id_" + normStr(bId)] = record;
+                if (bName) boarderMap["name_" + normStr(bName)] = record;
+                return record;
+            });
+
+            let unassignedMeals = 0;
+            let unassignedDeposits = 0;
+
+            // Distribute meals with ID matching & Name fallback
+            currentMeals.forEach(r => {
+                let mCount = (Number(r[4]) || 0) + (Number(r[5]) || 0);
+                if (mCount === 0) return;
+
+                let rId = normStr(r[2]);
+                let rName = normStr(r[3]);
+
+                let target = (rId && boarderMap["id_" + rId]) ? boarderMap["id_" + rId] : null;
+                if (!target && rName && boarderMap["name_" + rName]) target = boarderMap["name_" + rName];
+                if (!target && rId && boarderMap["name_" + rId]) target = boarderMap["name_" + rId];
+
+                if (target) {
+                    target.meals += mCount;
+                } else {
+                    unassignedMeals += mCount;
+                }
+            });
+
+            // Distribute deposits with ID matching & Name fallback
+            currentDeposits.forEach(r => {
+                let amount = Number(r[4]) || 0;
+                let rId = normStr(r[2]);
+                let rName = normStr(r[3]);
+
+                let target = (rId && boarderMap["id_" + rId]) ? boarderMap["id_" + rId] : null;
+                if (!target && rName && boarderMap["name_" + rName]) target = boarderMap["name_" + rName];
+                if (!target && rId && boarderMap["name_" + rId]) target = boarderMap["name_" + rId];
+
+                if (target) {
+                    target.deposit += amount;
+                } else {
+                    unassignedDeposits += amount;
+                }
+            });
+
+            if (unassignedMeals > 0 || unassignedDeposits > 0) {
+                memberData.push({
+                    id: "GUEST_EXTRA",
+                    name: "গেস্ট মিল / অতিরিক্ত (Guest / Extra)",
+                    phone: "",
+                    guardian: "",
+                    lunchStatus: "OFF",
+                    dinnerStatus: "OFF",
+                    meals: unassignedMeals,
+                    deposit: unassignedDeposits,
+                    cost: 0,
+                    balance: 0,
+                    isGuest: true
+                });
+            }
+
+            let totalMeals = memberData.reduce((s, m) => s + m.meals, 0);
+            let mealRate = totalMeals > 0 ? (totalExp / totalMeals) : 0;
+
+            let totalCost = 0;
+            let totalDeposit = 0;
+            memberData.forEach(m => {
+                m.cost = m.meals * mealRate;
+                m.balance = m.deposit - m.cost;
+                totalCost += m.cost;
+                totalDeposit += m.deposit;
+            });
+
+            return {
+                memberData,
+                totalMeals,
+                totalExp,
+                totalDeposit,
+                totalCost,
+                mealRate,
+                unassignedMeals
+            };
+        }
+
 
         function getAvatarColor(name) {
             const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-pink-500', 'bg-indigo-500'];
@@ -518,6 +956,7 @@
                     localStorage.setItem('boarderPin', p);
                     closeM('boarderLoginModal');
                     updateUserNav();
+                    if(windowAppData) renderUI(windowAppData);
                     switchMainTab(pendingTab, true);
                     showToast("সফলভাবে লগইন হয়েছে!");
                 } else {
@@ -538,6 +977,7 @@
                     localStorage.removeItem('boarderName');
                     localStorage.removeItem('boarderPin');
                     updateUserNav();
+                    if(windowAppData) renderUI(windowAppData);
                     switchMainTab('home');
                     showToast("লগআউট হয়েছে!");
                 }
@@ -547,11 +987,16 @@
         function updateUserNav() {
             let bn = localStorage.getItem('boarderName');
             let userBadge = document.getElementById('loggedUserBadge');
-            if(bn) {
-                userBadge.innerHTML = `<button onclick="boarderLogout()" class="text-[10px] bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-full font-bold shadow-sm flex items-center gap-1"><i class="fas fa-user"></i> ${escapeHTML(bn)}</button>`;
+            if(!userBadge) return;
+            if(managerPin) {
+                userBadge.innerHTML = `<div class="flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-300 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 px-3 py-1 rounded-full text-xs font-bold shadow-sm"><i class="fas fa-user-shield text-indigo-500"></i> <span>ম্যানেজার মোড</span><button onclick="lockManager()" class="ml-1 text-[10px] text-red-500 hover:text-red-700 font-bold">লক</button></div>`;
+                userBadge.classList.remove('hidden');
+            } else if(bn) {
+                userBadge.innerHTML = `<div class="flex items-center gap-1.5 bg-white/90 dark:bg-slate-800/90 border border-indigo-200 dark:border-slate-700 text-gray-800 dark:text-gray-100 px-3 py-1 rounded-full text-xs font-bold shadow-sm"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span>${escapeHTML(bn)}</span><span class="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-bold">ব্যক্তিগত মোড 🔒</span><button onclick="boarderLogout()" class="ml-1 text-[10px] text-red-500 hover:text-red-700 font-bold">লগআউট</button></div>`;
                 userBadge.classList.remove('hidden');
             } else {
-                userBadge.classList.add('hidden');
+                userBadge.innerHTML = `<button onclick="openBoarderLogin('boarders')" class="text-[10px] bg-primary text-white px-3 py-1.5 rounded-full font-bold shadow-sm flex items-center gap-1 active:scale-95 transition"><i class="fas fa-sign-in-alt"></i> বর্ডার লগইন</button>`;
+                userBadge.classList.remove('hidden');
             }
         }
 
@@ -613,55 +1058,115 @@
 
         document.getElementById('monthName').innerText = new Date().toLocaleString('bn-BD', {month:'long', year:'numeric'});
 
-        window.addEventListener('load', async () => {
-            updateUserNav();
-            fetchFreshData(); 
-            if ('serviceWorker' in navigator && 'PushManager' in window && Notification.permission === 'granted') {
+        // 1. Instant Cache Hydration (0ms load experience)
+        (function hydrateFromCache() {
+            let cached = getFromLocalCache();
+            if (cached && cached.boarders) {
+                windowAppData = cached;
+                dismissSplash(true); // Hide splash immediately in 0ms
                 try {
-                    const reg = await navigator.serviceWorker.register('./sw.js');
-                    await navigator.serviceWorker.ready;
-                    let sub = await reg.pushManager.getSubscription();
-                    if (!sub) {
-                        sub = await reg.pushManager.subscribe({
-                            userVisibleOnly: true,
-                            applicationServerKey: urlB64ToUint8('BHiXbSMqoaWC0dKsMO4FLgIA9T8KH9HHjMPq_g-LCxU4YoWOfp5eEFxlrrTFRr5xrCelwW0hGu736mCIvpuRCgk')
-                        });
-                        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'SAVE_PUSH_SUB', subscription: JSON.stringify(sub) }) });
-                    }
-                    document.getElementById('bellBtn').classList.replace('bg-yellow-100', 'bg-green-100');
-                } catch(e) {}
+                    updateUserNav();
+                    renderUI(cached);
+                } catch(e) {
+                    console.warn("Cached hydration error:", e);
+                }
+            }
+        })();
+
+        // 2. Start Data Sync Immediately (Do not wait for slow assets/window.load)
+        updateUserNav();
+        fetchFreshData();
+
+        // 3. Window Load: Non-critical services (OneSignal, ServiceWorker)
+        window.addEventListener('load', () => {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('IdealHome Service Worker active:', reg.scope))
+                    .catch(err => console.log('Service Worker registration skipped:', err));
+            }
+            if (window.OneSignalDeferred) {
+                window.OneSignalDeferred.push(async function(OneSignal) {
+                    try {
+                        if (OneSignal.Notifications && await OneSignal.Notifications.permission) {
+                            let bell = document.getElementById('bellBtn');
+                            if (bell) bell.classList.replace('bg-yellow-100', 'bg-green-100');
+                        }
+                    } catch(e) {}
+                });
             }
         });
-        
+
+        // 4. Online/Offline Network Monitoring
+        window.addEventListener('online', () => {
+            let offBadge = document.getElementById('offlineBadge');
+            if (offBadge) offBadge.classList.add('hidden');
+            showToast("অনলাইন কানেকশন ফিরে এসেছে! ডাটা সিঙ্ক হচ্ছে...");
+            fetchFreshData();
+        });
+
+        window.addEventListener('offline', () => {
+            let offBadge = document.getElementById('offlineBadge');
+            if (offBadge) offBadge.classList.remove('hidden');
+            showToast("আপনি এখন অফলাইনে আছেন। সংরক্ষিত ডাটা দেখাচ্ছে।", true);
+        });
+
+        // 5. Stale-While-Revalidate Network Fetcher with Early Promise Resolution
         async function fetchFreshData() {
-            document.getElementById('refreshIcon').classList.add('fa-spin');
+            let refreshIcon = document.getElementById('refreshIcon');
+            if (refreshIcon) refreshIcon.classList.add('fa-spin');
             try {
-                const res = await fetch(SCRIPT_URL + "?action=get_initial_data");
-                const data = await res.json();
-                windowAppData = data;
-                renderUI(data);
-                document.getElementById('offlineBadge').classList.add('hidden');
+                let data = null;
+                // Check if head early parallel fetch promise is available
+                if (window.__apiPromise) {
+                    try { data = await window.__apiPromise; } catch(pe) { data = null; }
+                    window.__apiPromise = null;
+                }
+                if (!data) {
+                    const res = await fetch(SCRIPT_URL + "?action=get_initial_data");
+                    if (!res.ok) throw new Error("HTTP " + res.status);
+                    data = await res.json();
+                }
+
+                if (data && data.boarders) {
+                    windowAppData = data;
+                    saveToLocalCache(data);
+                    renderUI(data);
+                    let offBadge = document.getElementById('offlineBadge');
+                    if (offBadge) offBadge.classList.add('hidden');
+                } else {
+                    throw new Error("Invalid payload format");
+                }
             } catch(e) {
-                document.getElementById('offlineBadge').classList.remove('hidden');
-                if(!windowAppData) {
-                    document.getElementById('splashLoader').innerHTML = '<div class="text-center"><i class="fas fa-wifi-slash text-4xl mb-2"></i><p class="text-sm">ইন্টারনেট কানেকশন নেই</p><button onclick="location.reload()" class="mt-4 bg-white text-primary px-4 py-1.5 rounded-full text-xs font-bold">রিফ্রেশ করুন</button></div>';
-                    return;
+                console.warn("fetchFreshData error/offline:", e);
+                let offBadge = document.getElementById('offlineBadge');
+                if (offBadge) offBadge.classList.remove('hidden');
+                
+                if (!windowAppData) {
+                    let cached = getFromLocalCache();
+                    if (cached && cached.boarders) {
+                        windowAppData = cached;
+                        renderUI(cached);
+                    } else {
+                        let splashLoader = document.getElementById('splashLoader');
+                        if (splashLoader) {
+                            splashLoader.innerHTML = '<div class="text-center"><i class="fas fa-wifi-slash text-4xl mb-2"></i><p class="text-sm">ইন্টারনেট কানেকশন নেই</p><button onclick="location.reload()" class="mt-4 bg-white text-primary px-4 py-1.5 rounded-full text-xs font-bold">রিফ্রেশ করুন</button></div>';
+                        }
+                        return;
+                    }
                 }
             } finally {
-                document.getElementById('refreshIcon').classList.remove('fa-spin');
-                let splash = document.getElementById('splashScreen');
-                if (splash && windowAppData) {
-                    splash.style.opacity = '0';
-                    setTimeout(() => { if(splash.parentNode) splash.remove(); }, 500); 
+                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+                if (windowAppData) {
+                    dismissSplash();
                 }
                 searchBoarderList();
             }
         }
 
         function renderUI(data) {
-            if(!data || !data.manager) return; 
+            if(!data || !data.boarders) return; 
 
-            document.getElementById('mgrName').innerText = escapeHTML(data.manager);
+            document.getElementById('mgrName').innerText = escapeHTML(data.manager || "ম্যানেজার");
 
             let notice = data.notice || "";
             let noticeCard = document.getElementById('noticeCard');
@@ -707,16 +1212,15 @@
                 document.getElementById('bazaarAvatarBox').innerHTML = '<i class="fas fa-user-clock text-yellow-600 dark:text-yellow-400 text-xl"></i>';
             }
 
-            let dData = data.deposits.slice(1).filter(r => isCurrentMonth(r[1])); 
-            let mData = data.meals.slice(1).filter(r => isCurrentMonth(r[1])); 
-            let tData = data.transactions.slice(1).filter(r => isCurrentMonth(r[1])); 
-            
-            let td = dData.reduce((s, r) => s + Number(r[4] || 0), 0);
-            let te = tData.reduce((s, r) => s + Number(r[4] || 0), 0);
-            let totalMeals = mData.reduce((s, r) => s + Number(r[4] || 0) + Number(r[5] || 0), 0);
-            
-            let rawMr = Number(totalMeals > 0 ? (te / totalMeals) : 0);
+            let stats = calculateMonthlyStats(data);
+            let td = stats.totalDeposit;
+            let te = stats.totalExp;
+            let totalMeals = stats.totalMeals;
+            let rawMr = stats.mealRate;
             let mrDisplay = rawMr.toFixed(2);
+
+            let dData = data.deposits.slice(1).filter(r => isCurrentMonth(r[1])); 
+            let tData = data.transactions.slice(1).filter(r => isCurrentMonth(r[1])); 
 
             document.getElementById('totalDep').innerText = "৳ " + td.toFixed(0);
             document.getElementById('totalExp').innerText = "৳ " + te.toFixed(0);
@@ -726,39 +1230,135 @@
             document.getElementById('budgetBar').style.width = (td > 0 ? (te / td) * 100 : 0) + "%";
             document.getElementById('budgetPercent').innerText = (td > 0 ? ((te / td) * 100).toFixed(0) : 0) + "% ব্যবহৃত";
 
+            // Update My Personal Card on tab_home
+            let isMgr = Boolean(managerPin);
+            let loggedBoarderId = localStorage.getItem('boarderId');
+            let loggedBoarderName = localStorage.getItem('boarderName');
+
+            let myCard = document.getElementById('myPersonalCard');
+            if (myCard) {
+                if (loggedBoarderId) {
+                    let myMember = stats.memberData.find(m => String(m.id).trim().toLowerCase() === String(loggedBoarderId).trim().toLowerCase() || normStr(m.name) === normStr(loggedBoarderName));
+                    if (myMember) {
+                        document.getElementById('myCardName').innerText = myMember.name;
+                        document.getElementById('myCardDep').innerText = "৳" + myMember.deposit.toFixed(0);
+                        document.getElementById('myCardMeals').innerText = myMember.meals + " টি";
+                        document.getElementById('myCardCost').innerText = "৳" + myMember.cost.toFixed(0);
+                        let bVal = myMember.balance;
+                        let bEl = document.getElementById('myCardBal');
+                        bEl.innerText = (bVal >= 0 ? "+৳" : "-৳") + Math.abs(bVal).toFixed(0);
+                        bEl.className = `text-xs font-bold mt-0.5 ${bVal < 0 ? 'text-red-500' : 'text-emerald-600 dark:text-emerald-400'}`;
+                        myCard.classList.remove('hidden');
+                    } else {
+                        myCard.classList.add('hidden');
+                    }
+                } else {
+                    myCard.classList.add('hidden');
+                }
+            }
+
             let tlCount = 0, tdCount = 0;
-            let boarderCards = data.boarders.slice(1).map(b => {
-                let bId = String(b[0]).trim();
-                let bName = String(b[1] || "Unknown").trim();
-                let lunchStatus = b[3], dinnerStatus = b[4];
+            let regularMembers = stats.memberData.filter(m => !m.isGuest);
+            let boarderCards = regularMembers.map(b => {
+                let bId = String(b.id).trim();
+                let bName = String(b.name).trim();
+                let lunchStatus = b.lunchStatus, dinnerStatus = b.dinnerStatus;
+                let bPhone = b.phone || "নম্বর নেই"; 
+                let bGuardian = b.guardian || "";
+                
                 if(lunchStatus == "ON") tlCount++;
                 if(dinnerStatus == "ON") tdCount++;
                 
-                let dep = dData.filter(d => String(d[2]).trim() === bId).reduce((s, r) => s + Number(r[4]), 0);
-                let meals = mData.filter(m => String(m[2]).trim() === bId).reduce((s, m) => s + Number(m[4]) + Number(m[5]), 0);
-                let cost = meals * rawMr;
-                let bal = dep - cost;
-                let color = bal >= 0 ? 'border-green-500' : 'border-red-500';
+                let dep = b.deposit;
+                let meals = b.meals;
+                let cost = b.cost;
+                let bal = b.balance;
+
+                let isSelf = (loggedBoarderId && (String(loggedBoarderId).trim().toLowerCase() === bId.toLowerCase() || normStr(bName) === normStr(loggedBoarderName)));
+                let canManage = isMgr || isSelf;
+
+                let color = canManage ? (bal >= 0 ? 'border-green-500' : 'border-red-500') : 'border-indigo-400/30';
                 let avColor = getAvatarColor(bName);
-                
+
+                // মিল বাটন: শুধুমাত্র ম্যানেজার বা নিজের একাউন্টে সক্রিয়, অন্যের ক্ষেত্রে রিড-অনলি
+                let lunchBtn = "";
+                let dinnerBtn = "";
+                if (canManage) {
+                    lunchBtn = `<button onclick="toggleMeal(event, '${escapeHTML(bId)}', 'lunch', '${lunchStatus=="ON"?"OFF":"ON"}')" class="w-12 h-6 flex justify-center items-center rounded-lg text-[9px] font-bold text-white shadow-sm transition active:scale-95 ${lunchStatus=="ON"?"bg-teal-500":"bg-gray-400"}">L: ${lunchStatus}</button>`;
+                    dinnerBtn = `<button onclick="toggleMeal(event, '${escapeHTML(bId)}', 'dinner', '${dinnerStatus=="ON"?"OFF":"ON"}')" class="w-12 h-6 flex justify-center items-center rounded-lg text-[9px] font-bold text-white shadow-sm transition active:scale-95 ${dinnerStatus=="ON"?"bg-indigo-500":"bg-gray-400"}">D: ${dinnerStatus}</button>`;
+                } else {
+                    lunchBtn = `<button onclick="showToast('রিড-অনলি: আপনি শুধুমাত্র নিজের মিল পরিবর্তন করতে পারবেন!', true)" class="w-12 h-6 flex justify-center items-center rounded-lg text-[9px] font-bold text-white shadow-sm opacity-50 cursor-not-allowed ${lunchStatus=="ON"?"bg-teal-500":"bg-gray-400"}">L: ${lunchStatus}</button>`;
+                    dinnerBtn = `<button onclick="showToast('রিড-অনলি: আপনি শুধুমাত্র নিজের মিল পরিবর্তন করতে পারবেন!', true)" class="w-12 h-6 flex justify-center items-center rounded-lg text-[9px] font-bold text-white shadow-sm opacity-50 cursor-not-allowed ${dinnerStatus=="ON"?"bg-indigo-500":"bg-gray-400"}">D: ${dinnerStatus}</button>`;
+                }
+
+                let selfBadge = '';
+                if (isSelf) {
+                    selfBadge = `<span class="bg-primary/10 text-primary border border-primary/20 text-[8px] px-1.5 py-0.5 rounded-full font-bold ml-1.5 inline-flex items-center gap-0.5"><i class="fas fa-user-check text-[7px]"></i> আমার একাউন্ট</span>`;
+                } else if (!isMgr && loggedBoarderId) {
+                    selfBadge = `<span class="bg-gray-100 dark:bg-slate-700 text-gray-500 text-[8px] px-1.5 py-0.5 rounded-full font-medium ml-1.5"><i class="fas fa-lock text-[7px] mr-0.5"></i>গোপনীয়</span>`;
+                }
+
+                // আর্থিক ব্যালেন্স প্রদর্শন: শুধুমাত্র ম্যানেজার বা নিজের একাউন্টে দেখা যাবে
+                // অন্য বর্ডারের ক্ষেত্রে কোনো ব্যালেন্স বা জমার পরিমাণ দেখা যাবে না
+                let financialDisplay = "";
+                if (canManage) {
+                    let balColor = bal < 0 ? 'text-red-500 font-extrabold' : 'text-green-600 dark:text-green-400 font-extrabold';
+                    financialDisplay = `
+                    <div class="flex justify-between items-center text-[10px] font-bold">
+                        <span class="text-gray-600 dark:text-gray-300">জমা: ৳${dep.toFixed(0)}</span>
+                        <span class="${balColor}">ব্যালেন্স: ${bal >= 0 ? '+ ৳' : '- ৳'}${Math.abs(bal).toFixed(0)}</span>
+                    </div>`;
+                } else {
+                    financialDisplay = `
+                    <div class="flex justify-between items-center text-[10px] text-gray-400 dark:text-gray-500 font-medium pt-0.5">
+                        <span><i class="fas fa-utensils text-[9px] mr-1 opacity-70"></i>চলতি মাসের মিল: ${meals} টি</span>
+                        <span class="text-[9px] bg-gray-100 dark:bg-slate-700/60 px-2 py-0.5 rounded-full text-gray-500"><i class="fas fa-lock mr-0.5 text-[8px]"></i>ব্যালেন্স গোপনীয়</span>
+                    </div>`;
+                }
+
+                let profileClickAction = canManage ? `openProfile('${escapeHTML(bId)}')` : `showToast('নিরাপত্তা সতর্কতা: আপনি শুধুমাত্র নিজের প্রোফাইল ও হিসাব দেখতে পারবেন!', true)`;
+                let profileCursor = canManage ? "cursor-pointer" : "cursor-default";
+
                 return `
-                <div class="glass p-4 rounded-3xl shadow-sm border-l-4 ${color} b-card mb-3" data-name="${escapeHTML(bName.toUpperCase())}">
+                <div class="glass p-4 rounded-3xl shadow-sm border-l-4 ${color} b-card mb-3 transition-all hover:shadow-md" data-name="${escapeHTML(bName.toUpperCase())}">
                     <div class="flex justify-between items-center mb-3">
-                        <div class="flex items-center gap-2 cursor-pointer" onclick="openProfile('${escapeHTML(bId)}')">
+                        <div class="flex items-center gap-2 ${profileCursor}" onclick="${profileClickAction}">
                             <div class="w-8 h-8 rounded-full ${avColor} text-white flex items-center justify-center text-xs font-bold">${escapeHTML(bName.charAt(0))}</div>
-                            <h4 class="font-bold text-sm">${escapeHTML(bName)}</h4>
+                            <div>
+                                <h4 class="font-bold text-sm leading-tight flex items-center flex-wrap">${escapeHTML(bName)}${selfBadge}</h4>
+                                <p class="text-[10px] text-gray-500 font-normal mt-0.5 flex flex-wrap items-center gap-x-2">
+                                    <span><i class="fab fa-whatsapp text-green-500"></i> ${escapeHTML(bPhone)}</span>
+                                    ${(canManage && bGuardian) ? `<span class="text-indigo-600 dark:text-indigo-400 font-medium"><i class="fas fa-user-shield text-blue-500"></i> অভিভাবক: ${escapeHTML(bGuardian)}</span>` : ''}
+                                </p>
+                            </div>
                         </div>
                         <div class="flex gap-1">
-                            <button onclick="toggleMeal(event, '${escapeHTML(bId)}', 'lunch', '${lunchStatus=="ON"?"OFF":"ON"}')" class="w-12 h-6 flex justify-center items-center rounded-lg text-[9px] font-bold text-white shadow-sm ${lunchStatus=="ON"?"bg-teal-500":"bg-gray-400"}">L: ${lunchStatus}</button>
-                            <button onclick="toggleMeal(event, '${escapeHTML(bId)}', 'dinner', '${dinnerStatus=="ON"?"OFF":"ON"}')" class="w-12 h-6 flex justify-center items-center rounded-lg text-[9px] font-bold text-white shadow-sm ${dinnerStatus=="ON"?"bg-indigo-500":"bg-gray-400"}">D: ${dinnerStatus}</button>
+                            ${lunchBtn}
+                            ${dinnerBtn}
                         </div>
                     </div>
-                    <div class="flex justify-between text-[10px] font-bold opacity-60">
-                        <span>জমা: ৳${dep}</span>
-                        <span class="${bal < 0 ? 'text-red-500' : 'text-green-600'}">ব্যালেন্স: ৳${bal.toFixed(0)}</span>
-                    </div>
+                    ${financialDisplay}
                 </div>`;
             }).join('');
+
+            if (stats.unassignedMeals > 0) {
+                let guestEntry = stats.memberData.find(m => m.isGuest);
+                if (guestEntry) {
+                    boarderCards += `
+                    <div class="glass p-3 rounded-2xl shadow-sm border-l-4 border-amber-500 mb-3 bg-amber-50/50 dark:bg-amber-950/20">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="font-bold text-xs text-amber-700 dark:text-amber-400"><i class="fas fa-user-friends mr-1"></i>${escapeHTML(guestEntry.name)}</h4>
+                                <p class="text-[10px] text-gray-500">মেসের অনির্ধারিত মিল</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs font-bold text-amber-600">${guestEntry.meals} টি মিল</span>
+                                <p class="text-[10px] text-gray-500 font-bold">খরচ: ৳${guestEntry.cost.toFixed(0)}</p>
+                            </div>
+                        </div>
+                    </div>`;
+                }
+            }
 
             document.getElementById('todayLunch').innerText = tlCount;
             document.getElementById('todayDinner').innerText = tdCount;
@@ -766,13 +1366,32 @@
             
             document.getElementById('expBody').innerHTML = tData.slice().reverse().map(t => {
                 let noteStr = t[5] ? `<br><span class="text-[9px] text-orange-500 opacity-80">(${escapeHTML(String(t[5]))})</span>` : "";
-                return `<tr class="border-b dark:border-slate-800"><td class="p-2"><div class="text-[10px] text-gray-400">${new Date(t[1]).toLocaleDateString('bn-BD', {day:'numeric', month:'short'})}</div>${escapeHTML(t[3])}${noteStr}</td><td class="p-2 text-right font-bold text-red-500">৳${t[4]}</td></tr>`;
+                let dt = parseSheetDate(t[1]);
+                let dtStr = dt ? dt.toLocaleDateString('bn-BD', {day:'numeric', month:'short'}) : escapeHTML(String(t[1]));
+                return `<tr class="border-b dark:border-slate-800"><td class="p-2"><div class="text-[10px] text-gray-400">${dtStr}</div>${escapeHTML(t[3])}${noteStr}</td><td class="p-2 text-right font-bold text-red-500">৳${t[4]}</td></tr>`;
             }).join('');
             
-            document.getElementById('depBody').innerHTML = dData.slice().reverse().map(t => {
-                let noteStr = t[5] ? `<br><span class="text-[9px] text-orange-500 opacity-80">(${escapeHTML(String(t[5]))})</span>` : "";
-                return `<tr class="border-b dark:border-slate-800"><td class="p-2"><div class="text-[10px] text-gray-400">${new Date(t[1]).toLocaleDateString('bn-BD', {day:'numeric', month:'short'})}</div>${escapeHTML(t[3])}${noteStr}</td><td class="p-2 text-right font-bold text-green-500">৳${t[4]}</td></tr>`;
-            }).join('');
+            // জমার হিসাব: ম্যানেজার সবার জমা দেখতে পারবেন, বর্ডার শুধুমাত্র নিজের জমা দেখতে পারবেন
+            let visibleDeposits = dData.slice().reverse().filter(t => {
+                if (isMgr) return true;
+                let depBoarderId = String(t[2] || "").trim();
+                let depName = normStr(t[3] || "");
+                if (loggedBoarderId) {
+                    return depBoarderId.toLowerCase() === String(loggedBoarderId).trim().toLowerCase() || depName === normStr(loggedBoarderName);
+                }
+                return false;
+            });
+
+            if (visibleDeposits.length > 0) {
+                document.getElementById('depBody').innerHTML = visibleDeposits.map(t => {
+                    let noteStr = t[5] ? `<br><span class="text-[9px] text-orange-500 opacity-80">(${escapeHTML(String(t[5]))})</span>` : "";
+                    let dt = parseSheetDate(t[1]);
+                    let dtStr = dt ? dt.toLocaleDateString('bn-BD', {day:'numeric', month:'short'}) : escapeHTML(String(t[1]));
+                    return `<tr class="border-b dark:border-slate-800"><td class="p-2"><div class="text-[10px] text-gray-400">${dtStr}</div>${escapeHTML(t[3])}${noteStr}</td><td class="p-2 text-right font-bold text-green-500">৳${t[4]}</td></tr>`;
+                }).join('');
+            } else {
+                document.getElementById('depBody').innerHTML = `<tr><td colspan="2" class="p-6 text-center text-xs text-gray-400"><i class="fas fa-user-lock text-2xl text-amber-500 mb-2 block"></i>${loggedBoarderId ? 'চলতি মাসে আপনার কোনো জমার রেকর্ড নেই।' : 'ব্যক্তিগত জমার বিবরণ দেখতে উপরে লগইন করুন।'}</td></tr>`;
+            }
 
             let pbRaw = data.pendingBazaar || data.pending_bazaar || data.Pending_Bazaar || data.PendingBazaar || [];
             let pbData = [];
@@ -803,19 +1422,21 @@
                 if(archData[0][0] && archData[0][0].toLowerCase().includes('month')) { archData = archData.slice(1); }
                 if(archData.length > 0) {
                     document.getElementById('archiveList').innerHTML = archData.map(a => `
-                        <div onclick="window.open('${a[1]}', '_blank', 'noopener,noreferrer')" class="flex items-center justify-between bg-indigo-50 dark:bg-indigo-900/30 p-3 rounded-2xl transition hover:scale-95 mb-2 cursor-pointer">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center text-white"><i class="fas fa-file-pdf"></i></div>
-                                <div><p class="text-xs font-bold">${escapeHTML(a[0])}</p><p class="text-[9px] text-gray-500 uppercase">মাসিক রিপোর্ট</p></div>
-                            </div>
-                            <i class="fas fa-external-link-alt text-indigo-400"></i>
+                        <div onclick="openInAppPdf('${a[1]}')" class="flex items-center justify-between bg-indigo-50 dark:bg-indigo-900/30 p-3 rounded-2xl transition hover:scale-95 mb-2 cursor-pointer">
+                            <span class="text-xs font-bold"><i class="fas fa-calendar-alt text-indigo-500 mr-2"></i>${escapeHTML(a[0])}</span>
+                            <i class="fas fa-chevron-right text-xs opacity-50"></i>
                         </div>
                     `).join('');
+                } else {
+                    document.getElementById('archiveList').innerHTML = '<p class="text-xs text-center text-gray-400">কোনো আর্কাইভ পাওয়া যায়নি</p>';
                 }
+            } else {
+                document.getElementById('archiveList').innerHTML = '<p class="text-xs text-center text-gray-400">কোনো আর্কাইভ পাওয়া যায়নি</p>';
             }
 
             initChart();
         }
+        window.loadData = renderUI;
 
         function searchBoarderList() {
             let input = document.getElementById("searchB");
@@ -875,23 +1496,37 @@
             let bData = windowAppData.boarders.find(b => String(b[0]).trim() === String(id).trim());
             if(!bData) return;
             
+            let isMgr = Boolean(managerPin);
+            let loggedBoarderId = localStorage.getItem('boarderId');
+            let loggedBoarderName = localStorage.getItem('boarderName');
+            let isSelf = (loggedBoarderId && (String(loggedBoarderId).trim().toLowerCase() === String(bData[0]).trim().toLowerCase() || normStr(loggedBoarderName) === normStr(bData[1])));
+
+            if (!isMgr && !isSelf) {
+                showToast("নিরাপত্তা সতর্কতা: আপনি শুধুমাত্র নিজের প্রোফাইল ও হিসাব দেখতে পারবেন!", true);
+                return;
+            }
+
             activeProfileId = String(bData[0]).trim();
             activeProfileName = String(bData[1]).trim();
+            let bPhone = bData[7] ? String(bData[7]).trim() : "নম্বর নেই";
+            let bGuardian = bData[8] ? String(bData[8]).trim() : "";
             
-            let dData = windowAppData.deposits.slice(1).filter(r => isCurrentMonth(r[1]));
-            let mData = windowAppData.meals.slice(1).filter(r => isCurrentMonth(r[1]));
-            let tData = windowAppData.transactions.slice(1).filter(r => isCurrentMonth(r[1]));
+            let stats = calculateMonthlyStats(windowAppData);
+            let rawMr = stats.mealRate;
+
+            let pCleanId = String(activeProfileId).toLowerCase();
+            let pCleanName = String(activeProfileName).toLowerCase();
+            let member = stats.memberData.find(m => String(m.id).toLowerCase() === pCleanId || String(m.name).toLowerCase() === pCleanName);
+            let dep = member ? member.deposit : 0;
+            let meals = member ? member.meals : 0;
+            let cost = member ? member.cost : 0;
+            let bal = member ? member.balance : 0;
             
-            let te = tData.reduce((s, r) => s + Number(r[4] || 0), 0);
-            let tm = mData.reduce((s, r) => s + Number(r[4] || 0) + Number(r[5] || 0), 0);
-            let rawMr = Number(tm > 0 ? (te / tm) : 0);
-            
-            let dep = dData.filter(d => String(d[2]).trim() === String(activeProfileId)).reduce((s, r) => s + Number(r[4]), 0);
-            let meals = mData.filter(m => String(m[2]).trim() === String(activeProfileId)).reduce((s, m) => s + Number(m[4]) + Number(m[5]), 0);
-            let cost = meals * rawMr;
-            let bal = dep - cost;
-            
-            document.getElementById('pName').innerText = activeProfileName;
+            let contactHtml = `<div class="flex flex-wrap items-center gap-2 text-[11px] font-normal text-gray-500 mt-1">
+                <span><a href="tel:${escapeHTML(bPhone)}" class="hover:underline text-green-600 dark:text-green-400 font-medium"><i class="fab fa-whatsapp"></i> ${escapeHTML(bPhone)}</a></span>
+                ${bGuardian ? `<span>|</span><span><a href="tel:${escapeHTML(bGuardian)}" class="hover:underline text-indigo-600 dark:text-indigo-400 font-semibold"><i class="fas fa-user-shield"></i> অভিভাবক: ${escapeHTML(bGuardian)}</a></span>` : ''}
+            </div>`;
+            document.getElementById('pName').innerHTML = `${escapeHTML(activeProfileName)}<br>${contactHtml}`;
             document.getElementById('pAvatar').className = `w-10 h-10 rounded-full text-white flex justify-center items-center font-bold shadow-md ${getAvatarColor(activeProfileName)}`;
             document.getElementById('pAvatar').innerText = activeProfileName.charAt(0);
             document.getElementById('pDep').innerText = "৳" + dep.toFixed(0);
@@ -899,7 +1534,12 @@
             document.getElementById('pBal').innerText = "৳" + bal.toFixed(0);
             document.getElementById('pBal').className = `text-2xl font-bold mt-1 ${bal < 0 ? 'text-red-500' : 'text-primary'}`;
             
-            let mHistory = mData.filter(m => String(m[2]).trim() === String(activeProfileId)).sort((a, b) => {
+            let mData = windowAppData.meals.slice(1).filter(r => isCurrentMonth(r[1]));
+            let mHistory = mData.filter(m => {
+                let mId = String(m[2] || "").trim().toLowerCase();
+                let mName = String(m[3] || "").trim().toLowerCase();
+                return (mId && mId === pCleanId) || (mName && mName === pCleanName) || (mId && mId === pCleanName);
+            }).sort((a, b) => {
                 let dA = parseSheetDate(a[1]) || new Date(0);
                 let dB = parseSheetDate(b[1]) || new Date(0);
                 return dB - dA;
@@ -1064,6 +1704,8 @@
                     document.getElementById('mgrLockScreen').classList.add('hidden');
                     document.getElementById('mgrContent').classList.remove('hidden');
                     showToast("ম্যানেজার প্যানেল আনলক হয়েছে!");
+                    updateUserNav();
+                    if(windowAppData) renderUI(windowAppData);
                 } else {
                     showToast(errMsg, true);
                 }
@@ -1079,13 +1721,15 @@
             document.getElementById('mgrContent').classList.add('hidden');
             document.getElementById('mgrLockScreen').classList.remove('hidden');
             showToast("ম্যানেজার প্যানেল লক করা হয়েছে!");
+            updateUserNav();
+            if(windowAppData) renderUI(windowAppData);
         }
 
         let currentAct = "";
         function showAction(a) {
             currentAct = a;
             openModal('modal');
-            let t = {'ADD_DEPOSIT':'টাকা জমা করুন','ADD_TRANSACTION':'খরচ যোগ করুন','ADD_BOARDER':'বর্ডার যোগ করুন','DELETE_BOARDER':'বর্ডার ডিলিট','MANAGER_EDIT_MEAL':'মিল স্ট্যাটাস পরিবর্তন','ASSIGN_BAZAAR':'বাজারের দায়িত্ব দিন','CHANGE_MANAGER':'ম্যানেজার পরিবর্তন','CHANGE_MANAGER_PIN':'ম্যানেজার পিন পরিবর্তন','EDIT_BAZAAR':'বাজার এডিট করুন','DELETE_BAZAAR':'বাজার ডিলিট করুন','EDIT_DEPOSIT':'জমা এডিট করুন','EDIT_TRANSACTION':'খরচ এডিট করুন', 'UPDATE_NOTICE': 'নোটিশ আপডেট করুন'};
+            let t = {'ADD_DEPOSIT':'টাকা জমা করুন','ADD_TRANSACTION':'খরচ যোগ করুন','ADD_BOARDER':'বর্ডার যোগ করুন','EDIT_BOARDER':'বর্ডার / অভিভাবকের নম্বর এডিট','DELETE_BOARDER':'বর্ডার ডিলিট','MANAGER_EDIT_MEAL':'মিল স্ট্যাটাস পরিবর্তন','ASSIGN_BAZAAR':'বাজারের দায়িত্ব দিন','CHANGE_MANAGER':'ম্যানেজার পরিবর্তন','CHANGE_MANAGER_PIN':'ম্যানেজার পিন পরিবর্তন','EDIT_BAZAAR':'বাজার এডিট করুন','DELETE_BAZAAR':'বাজার ডিলিট করুন','EDIT_DEPOSIT':'জমা এডিট করুন','EDIT_TRANSACTION':'খরচ এডিট করুন', 'UPDATE_NOTICE': 'নোটিশ আপডেট করুন'};
             document.getElementById('mTitle').innerText = t[a] || 'ম্যানেজার অ্যাকশন';
             
             let bOpt = windowAppData.boarders.slice(1).map(b => `<option value="${escapeHTML(String(b[0]).trim())}">${escapeHTML(String(b[1]).trim())}</option>`).join('');
@@ -1095,7 +1739,24 @@
             
             if(a == 'ADD_TRANSACTION') i = `<select id="i_tx_boarder" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2"><option value="">যেকোনো খরচ (বর্ডার ছাড়া)</option>${bOpt}</select><input id="i_tx_item" placeholder="কী বাজার আনা হয়েছে?" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2"><input id="i_tx_cost" type="number" inputmode="numeric" placeholder="মোট খরচ (৳)" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">`;
             
-            if(a == 'ADD_BOARDER') i = `<input id="i_new_boarder_name" placeholder="বর্ডারের নাম" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2"><input id="i_new_boarder_phone" type="number" placeholder="ফোন নম্বর" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">`;
+            if(a == 'ADD_BOARDER') i = `
+                <input id="i_new_boarder_name" placeholder="বর্ডারের নাম" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2">
+                <input id="i_new_boarder_phone" type="tel" placeholder="বর্ডারের ফোন / WhatsApp নম্বর" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2">
+                <input id="i_new_boarder_guardian_phone" type="tel" placeholder="অভিভাবকের নম্বর (Guardian Number)" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">
+            `;
+
+            if(a == 'EDIT_BOARDER') {
+                i = `
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">কোন বর্ডারের তথ্য পরিবর্তন করবেন?</p>
+                <select id="i_edit_boarder_id" onchange="fillEditBoarderFields()" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-3 text-xs font-bold">${bOpt}</select>
+                <p class="text-[10px] text-gray-400 uppercase font-bold mb-1">বর্ডারের নাম</p>
+                <input id="i_edit_boarder_name" placeholder="বর্ডারের নাম" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2">
+                <p class="text-[10px] text-gray-400 uppercase font-bold mb-1">বর্ডারের ফোন নম্বর</p>
+                <input id="i_edit_boarder_phone" type="tel" placeholder="বর্ডারের ফোন নম্বর" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2">
+                <p class="text-[10px] text-gray-400 uppercase font-bold mb-1">অভিভাবকের নম্বর (Guardian Number)</p>
+                <input id="i_edit_boarder_guardian" type="tel" placeholder="অভিভাবকের ফোন নম্বর" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">
+                `;
+            }
             
             if(a == 'DELETE_BOARDER') i = `<select id="i_del_boarder" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">${bOpt}</select>`;
             
@@ -1136,26 +1797,42 @@
             if(a == 'CHANGE_MANAGER_PIN') i = `<input id="i_mgr_pin_old" type="password" inputmode="numeric" placeholder="বর্তমান পিন দিন" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2"><input id="i_mgr_pin1" type="password" inputmode="numeric" placeholder="নতুন পিন দিন" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2"><input id="i_mgr_pin2" type="password" inputmode="numeric" placeholder="নতুন পিন আবার দিন (নিশ্চিত করুন)" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">`;
             
             if(a == 'EDIT_BAZAAR') {
-                let txOpt = windowAppData.transactions.slice(1).map((r,idx) => `<option value="${idx}">${r[0]} — ${r[3]} — ৳${r[4]}</option>`).join('');
+                let txOpt = windowAppData.transactions.slice(1).map((r,idx) => {
+                    let d = parseSheetDate(r[1]);
+                    let dStr = d ? d.toLocaleDateString('bn-BD') : r[1];
+                    return `<option value="${idx}">${dStr} — ${escapeHTML(r[3])} — ৳${r[4]}</option>`;
+                }).join('');
                 i = `<p class="text-xs text-gray-500 dark:text-gray-400 mb-1">কোন বাজারটি এডিট করবেন?</p>
                 <select id="i_edit_tx_idx" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-3 text-xs">${txOpt}</select>
                 <input id="i_edit_tx_item" placeholder="নতুন বিবরণ / আইটেম" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2">
                 <input id="i_edit_tx_cost" type="number" inputmode="numeric" placeholder="নতুন খরচ (৳)" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">`;
             }
             if(a == 'DELETE_BAZAAR') {
-                let txOpt = windowAppData.transactions.slice(1).map((r,idx) => `<option value="${idx}">${r[0]} — ${r[3]} — ৳${r[4]}</option>`).join('');
+                let txOpt = windowAppData.transactions.slice(1).map((r,idx) => {
+                    let d = parseSheetDate(r[1]);
+                    let dStr = d ? d.toLocaleDateString('bn-BD') : r[1];
+                    return `<option value="${idx}">${dStr} — ${escapeHTML(r[3])} — ৳${r[4]}</option>`;
+                }).join('');
                 i = `<p class="text-xs text-red-500 font-bold mb-2">⚠️ এই খরচটি স্থায়ীভাবে মুছে যাবে!</p>
                 <select id="i_del_tx_idx" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-xs">${txOpt}</select>`;
             }
             if(a == 'EDIT_DEPOSIT') {
-                let depOpt = windowAppData.deposits.slice(1).map((r,idx) => `<option value="${idx}">${r[3]} — ৳${r[4]} (${new Date(r[1]).toLocaleDateString('bn-BD')})</option>`).join('');
+                let depOpt = windowAppData.deposits.slice(1).map((r,idx) => {
+                    let d = parseSheetDate(r[1]);
+                    let dStr = d ? d.toLocaleDateString('bn-BD') : r[1];
+                    return `<option value="${idx}">${escapeHTML(r[3])} — ৳${r[4]} (${dStr})</option>`;
+                }).join('');
                 i = `<p class="text-xs text-gray-500 dark:text-gray-400 mb-1">কোন জমাটি এডিট করবেন?</p>
                 <select id="i_edit_dep_idx" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-3 text-xs">${depOpt}</select>
                 <select id="i_edit_dep_boarder" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2">${bOpt}</select>
                 <input id="i_edit_dep_amount" type="number" inputmode="numeric" placeholder="সংশোধিত পরিমাণ (৳)" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700">`;
             }
             if(a == 'EDIT_TRANSACTION') {
-                let txOpt2 = windowAppData.transactions.slice(1).map((r,idx) => `<option value="${idx}">${r[3]} — ৳${r[4]} (${new Date(r[1]).toLocaleDateString('bn-BD')})</option>`).join('');
+                let txOpt2 = windowAppData.transactions.slice(1).map((r,idx) => {
+                    let d = parseSheetDate(r[1]);
+                    let dStr = d ? d.toLocaleDateString('bn-BD') : r[1];
+                    return `<option value="${idx}">${dStr} — ${escapeHTML(r[3])} — ৳${r[4]}</option>`;
+                }).join('');
                 i = `<p class="text-xs text-gray-500 dark:text-gray-400 mb-1">কোন খরচটি এডিট করবেন?</p>
                 <select id="i_edit_tx2_idx" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-3 text-xs">${txOpt2}</select>
                 <input id="i_edit_tx2_item" placeholder="সংশোধিত বিবরণ" class="w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-700 mb-2">
@@ -1181,6 +1858,24 @@
                 }
                 document.getElementById('bzr_from').addEventListener('change', updateDayCount);
                 document.getElementById('bzr_to').addEventListener('change', updateDayCount);
+            }
+
+            if(a == 'EDIT_BOARDER') {
+                fillEditBoarderFields();
+            }
+        }
+
+        function fillEditBoarderFields() {
+            let sel = document.getElementById('i_edit_boarder_id');
+            if (!sel || !windowAppData || !windowAppData.boarders) return;
+            let b = windowAppData.boarders.find(x => String(x[0]).trim() === String(sel.value).trim());
+            if (b) {
+                let nameEl = document.getElementById('i_edit_boarder_name');
+                let phoneEl = document.getElementById('i_edit_boarder_phone');
+                let guardEl = document.getElementById('i_edit_boarder_guardian');
+                if (nameEl) nameEl.value = b[1] || "";
+                if (phoneEl) phoneEl.value = b[7] || "";
+                if (guardEl) guardEl.value = b[8] || "";
             }
         }
 
@@ -1252,6 +1947,17 @@
                 case 'ADD_BOARDER':
                     payload.name = document.getElementById('i_new_boarder_name').value;
                     payload.phone = document.getElementById('i_new_boarder_phone').value;
+                    payload.guardian_phone = document.getElementById('i_new_boarder_guardian_phone') ? document.getElementById('i_new_boarder_guardian_phone').value : "";
+                    if(!payload.name) { showToast("নাম দিন!", true); return; }
+                    if(!payload.phone) { showToast("হোয়াটসঅ্যাপ বা ফোন নম্বর দিন!", true); return; }
+                    break;
+                case 'EDIT_BOARDER':
+                    let selEditB = document.getElementById('i_edit_boarder_id');
+                    payload.boarder_id = selEditB.value;
+                    payload.name = document.getElementById('i_edit_boarder_name').value;
+                    payload.phone = document.getElementById('i_edit_boarder_phone').value;
+                    payload.guardian_phone = document.getElementById('i_edit_boarder_guardian') ? document.getElementById('i_edit_boarder_guardian').value : "";
+                    if(!payload.boarder_id) { showToast("বর্ডার নির্বাচন করুন!", true); return; }
                     if(!payload.name) { showToast("নাম দিন!", true); return; }
                     break;
                 case 'DELETE_BOARDER':
@@ -1335,6 +2041,17 @@
                 const res = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify(payload)});
                 const resText = await res.text();
                 showToast(resText);
+
+                if (payload.action === 'ADD_DEPOSIT') {
+                    setTimeout(() => {
+                        sendAutoDepositWhatsApp(payload.boarder_id, payload.name, payload.amount);
+                    }, 500);
+                }
+                if (payload.action === 'ASSIGN_BAZAAR') {
+                    setTimeout(() => {
+                        sendAutoBazaarAssignWhatsApp(payload.boarder_id, payload.name, payload.dates);
+                    }, 500);
+                }
             } catch(e) {
                 showToast("সার্ভার এরর!", true);
             } finally {
@@ -1368,7 +2085,17 @@
         }
 
         async function submitMeals(event) {
-            let list = windowAppData.boarders.slice(1).map(r => ({boarder_id: r[0], name: r[1], lunch: document.getElementById('ml_l_' + r[0]).value, dinner: document.getElementById('ml_d_' + r[0]).value}));
+            let list = windowAppData.boarders.slice(1).map(r => {
+                let idStr = String(r[0]).trim();
+                let elL = document.getElementById('ml_l_' + idStr);
+                let elD = document.getElementById('ml_d_' + idStr);
+                return {
+                    boarder_id: idStr,
+                    name: r[1],
+                    lunch: elL ? elL.value : 0,
+                    dinner: elD ? elD.value : 0
+                };
+            });
             let btn = event.target;
             let oldText = btn.innerText;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
@@ -1387,11 +2114,16 @@
         }
 
         function generateReport() {
-            let d = windowAppData;
-            let te = d.transactions.slice(1).filter(r => isCurrentMonth(r[1])).reduce((s, r) => s + Number(r[4] || 0), 0);
-            let tm = d.meals.slice(1).filter(r => isCurrentMonth(r[1])).reduce((s, r) => s + Number(r[4] || 0) + Number(r[5] || 0), 0);
-            
-            let rawMr = Number(tm > 0 ? (te / tm) : 0);
+            let isMgr = Boolean(managerPin);
+            if (!isMgr) {
+                showToast("নিরাপত্তা সতর্কতা: শুধুমাত্র ম্যানেজার মেসের পূর্ণাঙ্গ ব্যালেন্স অডিট রিপোর্ট দেখতে পারবেন!", true);
+                return;
+            }
+
+            let stats = calculateMonthlyStats(windowAppData);
+            let te = stats.totalExp;
+            let tm = stats.totalMeals;
+            let rawMr = stats.mealRate;
             let mrDisplay = rawMr.toFixed(2);
 
             document.getElementById('reportMonth').innerText = "চলতি মাসের হিসাব — " + document.getElementById('monthName').innerText;
@@ -1399,22 +2131,35 @@
             document.getElementById('rRate').innerText = "৳" + mrDisplay;
             document.getElementById('rMgrName').innerText = document.getElementById('mgrName').innerText;
 
-            let rows = d.boarders.slice(1).map((b, idx) => {
-                let dep = d.deposits.slice(1).filter(x => String(x[2]).trim() === String(b[0]).trim() && isCurrentMonth(x[1])).reduce((s, r) => s + Number(r[4]), 0);
-                let meals = d.meals.slice(1).filter(x => String(x[2]).trim() === String(b[0]).trim() && isCurrentMonth(x[1])).reduce((s, m) => s + Number(m[4]) + Number(m[5]), 0);
-                let cost = meals * rawMr;
-                let bal = dep - cost;
-                let bg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
+            let rows = stats.memberData.map((b, idx) => {
+                let dep = b.deposit;
+                let meals = b.meals;
+                let cost = b.cost;
+                let bal = b.balance;
+                let bg = b.isGuest ? '#fffbeb' : (idx % 2 === 0 ? '#ffffff' : '#f8fafc');
                 let balColor = bal < 0 ? '#ef4444' : '#16a34a';
+                let nameDisplay = b.isGuest ? `<strong>${escapeHTML(b.name)}</strong>` : escapeHTML(b.name);
                 return `<tr style="background:${bg};">
-                    <td style="padding:10px 12px;font-weight:700;font-size:12px;border-bottom:1px solid #f1f5f9;">${escapeHTML(b[1])}</td>
-                    <td style="padding:10px 8px;text-align:right;font-size:12px;border-bottom:1px solid #f1f5f9;color:#0284c7;">৳${dep}</td>
-                    <td style="padding:10px 8px;text-align:right;font-size:12px;border-bottom:1px solid #f1f5f9;">${meals}</td>
+                    <td style="padding:10px 12px;font-weight:700;font-size:12px;border-bottom:1px solid #f1f5f9;">${nameDisplay}</td>
+                    <td style="padding:10px 8px;text-align:right;font-size:12px;border-bottom:1px solid #f1f5f9;color:#0284c7;">৳${dep.toFixed(0)}</td>
+                    <td style="padding:10px 8px;text-align:right;font-size:12px;border-bottom:1px solid #f1f5f9;font-weight:bold;">${meals}</td>
                     <td style="padding:10px 8px;text-align:right;font-size:12px;border-bottom:1px solid #f1f5f9;color:#ea580c;">৳${cost.toFixed(0)}</td>
                     <td style="padding:10px 8px;text-align:right;font-weight:800;font-size:13px;border-bottom:1px solid #f1f5f9;color:${balColor};">${bal < 0 ? '- ' : '+ '}৳${Math.abs(bal).toFixed(0)}</td>
                 </tr>`;
             }).join('');
             document.getElementById('reportTable').innerHTML = rows;
+
+            let netBal = stats.totalDeposit - stats.totalExp;
+            let footHtml = `<tr style="background:#eef2ff;font-weight:800;border-top:2px solid #4f46e5;color:#1e1b4b;">
+                <td style="padding:12px 12px;text-align:left;font-size:12px;">সর্বমোট (Total)</td>
+                <td style="padding:12px 8px;text-align:right;font-size:12px;color:#0284c7;">৳${stats.totalDeposit.toFixed(0)}</td>
+                <td style="padding:12px 8px;text-align:right;font-size:12px;color:#4f46e5;">${stats.totalMeals}</td>
+                <td style="padding:12px 8px;text-align:right;font-size:12px;color:#ef4444;">৳${stats.totalExp.toFixed(0)}</td>
+                <td style="padding:12px 8px;text-align:right;font-size:13px;color:${netBal < 0 ? '#ef4444' : '#16a34a'};">${netBal < 0 ? '- ' : '+ '}৳${Math.abs(netBal).toFixed(0)}</td>
+            </tr>`;
+            let footEl = document.getElementById('reportTableFoot');
+            if (footEl) footEl.innerHTML = footHtml;
+
             openModal('reportM');
         }
 
@@ -1470,8 +2215,9 @@
         }
 
         function initChart() {
-            if(!windowAppData) return;
+            if(!windowAppData || typeof Chart === 'undefined') return;
             let canvas = document.getElementById('expenseChart');
+            if(!canvas) return;
             const ctx = canvas.getContext('2d');
             if(myChart) { myChart.destroy(); myChart = null; }
             let datesKey = [], amounts = [], displayDates = [];
@@ -1522,6 +2268,614 @@
 
         function subscribeToNotifications() {
              window.OneSignalDeferred.push(function(OneSignal) { OneSignal.showSlidedownPrompt(); });
+        }
+
+        // অ্যাপের ভেতরে পিডিএফ ওপেন করার ফাংশন
+        function openInAppPdf(url) {
+            let previewUrl = url;
+            if (url.includes('view')) {
+                previewUrl = url.replace(/\/view.*/, '/preview');
+            }
+            let directLink = document.getElementById('pdfOpenDirect');
+            if (directLink) directLink.href = url;
+            document.getElementById('pdfLoading').style.display = 'flex';
+            document.getElementById('pdfFrame').src = previewUrl;
+            document.getElementById('pdfModal').classList.remove('hidden');
+            document.getElementById('pdfModal').classList.add('flex');
+        }
+
+        // পিডিএফ ক্লোজ করার ফাংশন
+        function closePdfModal() {
+            document.getElementById('pdfModal').classList.add('hidden');
+            document.getElementById('pdfModal').classList.remove('flex');
+            document.getElementById('pdfFrame').src = ""; 
+        }
+
+        // ম্যানুয়াল আর্কাইভ ফাংশন
+        async function manualArchive() {
+            if(!managerPin) { showToast("আগে ম্যানেজার প্যানেল আনলক করুন!", true); return; }
+            showConfirm("আপনি কি চলতি মাসের পিডিএফ এখনই আর্কাইভে সেভ করতে চান?", async (res) => {
+                if(res) {
+                    let payload = { action: "MANUAL_ARCHIVE", pin: managerPin, manager: document.getElementById('mgrName').innerText };
+                    showToast("আর্কাইভ করা হচ্ছে, অপেক্ষা করুন...");
+                    try {
+                        const resFetch = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify(payload)});
+                        showToast(await resFetch.text());
+                        fetchFreshData();
+                    } catch(e) {
+                        showToast("সার্ভার এরর!", true);
+                    }
+                }
+            });
+        }
+
+        // ===== WHATSAPP LIVE ENGINE & BROADCASTER CONTROLLERS =====
+        const LIVE_WA_ENGINE_URL = "https://idealhomemess.onrender.com";
+        let liveWaPollInterval = null;
+        let waCurrentTab = 'qr';
+        let waQrCountdown = 20;
+        let waQrTimerInterval = null;
+        let waLastQrData = '';
+
+        function switchWaModalTab(tab) {
+            waCurrentTab = tab;
+            const btnQr = document.getElementById('tabBtnQr');
+            const btnPair = document.getElementById('tabBtnPair');
+            const qrBox = document.getElementById('waEngineQrBox');
+            const pairBox = document.getElementById('waEnginePairBox');
+
+            if (tab === 'qr') {
+                if (btnQr) btnQr.className = "flex-1 py-2 rounded-xl transition bg-white dark:bg-darkCard text-emerald-600 dark:text-emerald-400 shadow-sm flex items-center justify-center gap-1.5";
+                if (btnPair) btnPair.className = "flex-1 py-2 rounded-xl transition text-gray-500 dark:text-gray-400 hover:text-gray-800 flex items-center justify-center gap-1.5";
+                if (qrBox) qrBox.classList.remove('hidden');
+                if (pairBox) pairBox.classList.add('hidden');
+            } else {
+                if (btnPair) btnPair.className = "flex-1 py-2 rounded-xl transition bg-white dark:bg-darkCard text-emerald-600 dark:text-emerald-400 shadow-sm flex items-center justify-center gap-1.5";
+                if (btnQr) btnQr.className = "flex-1 py-2 rounded-xl transition text-gray-500 dark:text-gray-400 hover:text-gray-800 flex items-center justify-center gap-1.5";
+                if (pairBox) pairBox.classList.remove('hidden');
+                if (qrBox) qrBox.classList.add('hidden');
+            }
+        }
+
+        function openWhatsAppWebModal() {
+            if(!managerPin) {
+                showToast("আগে ম্যানেজার প্যানেল আনলক করুন!", true);
+                return;
+            }
+            openModal('whatsappWebModal');
+            pollLiveWaEngine(true);
+            if (!liveWaPollInterval) {
+                liveWaPollInterval = setInterval(() => pollLiveWaEngine(false), 3000);
+            }
+            startWaQrCountdown();
+        }
+
+        function closeWhatsAppWebModal() {
+            if (liveWaPollInterval) {
+                clearInterval(liveWaPollInterval);
+                liveWaPollInterval = null;
+            }
+            if (waQrTimerInterval) {
+                clearInterval(waQrTimerInterval);
+                waQrTimerInterval = null;
+            }
+            closeM('whatsappWebModal');
+        }
+
+        function openWhatsAppQRModal() {
+            openWhatsAppWebModal();
+        }
+
+        function closeWhatsAppQRModal() {
+            closeWhatsAppWebModal();
+        }
+
+        function startWaQrCountdown() {
+            if (waQrTimerInterval) clearInterval(waQrTimerInterval);
+            waQrTimerInterval = setInterval(() => {
+                waQrCountdown = Math.max(0, waQrCountdown - 1);
+                const txt = document.getElementById('waQrTimerText');
+                const bar = document.getElementById('waQrTimerBar');
+                if (txt) {
+                    txt.innerText = waQrCountdown > 0 ? (waQrCountdown + " সেকেন্ড বাকি") : "নতুন কোড প্রস্তুত হচ্ছে...";
+                    txt.className = waQrCountdown > 5 
+                        ? "font-bold text-emerald-600 dark:text-emerald-400" 
+                        : "font-bold text-rose-500 animate-pulse";
+                }
+                if (bar) {
+                    bar.style.width = ((waQrCountdown / 20) * 100) + "%";
+                    bar.className = waQrCountdown > 5 
+                        ? "bg-gradient-to-r from-emerald-500 to-teal-500 h-full transition-all duration-1000" 
+                        : "bg-rose-500 h-full transition-all duration-1000";
+                }
+            }, 1000);
+        }
+
+        async function pollLiveWaEngine(showToastNotice = false) {
+            try {
+                const res = await fetch(`${LIVE_WA_ENGINE_URL}/status`);
+                const data = await res.json();
+
+                const dot = document.getElementById('waEngineStatusDot');
+                const title = document.getElementById('waEngineStatusTitle');
+                const subtitle = document.getElementById('waEngineStatusSubtitle');
+                const tabs = document.getElementById('waConnectTabs');
+                const qrBox = document.getElementById('waEngineQrBox');
+                const pairBox = document.getElementById('waEnginePairBox');
+                const conBox = document.getElementById('waEngineConnectedBox');
+                const qrImg = document.getElementById('waLiveQrImg');
+
+                if (data.connected) {
+                    if (dot) dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
+                    if (title) {
+                        title.innerText = "WhatsApp ইঞ্জিন সক্রিয় রয়েছে";
+                        title.className = "font-bold text-xs text-emerald-600 dark:text-emerald-400";
+                    }
+                    let pNum = data.user?.id ? "+" + data.user.id.split(':')[0] : (data.user?.phone ? "+" + data.user.phone : "বট সংযুক্ত");
+                    if (subtitle) subtitle.innerText = "কানেক্টেড নম্বর: " + pNum;
+                    if (tabs) tabs.classList.add('hidden');
+                    if (qrBox) qrBox.classList.add('hidden');
+                    if (pairBox) pairBox.classList.add('hidden');
+                    if (conBox) conBox.classList.remove('hidden');
+                    if (waQrTimerInterval) {
+                        clearInterval(waQrTimerInterval);
+                        waQrTimerInterval = null;
+                    }
+                } else {
+                    if (dot) dot.className = "w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse";
+                    if (title) {
+                        title.innerText = "স্ক্যান প্রয়োজন (QR কোড সক্রিয়)";
+                        title.className = "font-bold text-xs text-amber-600 dark:text-amber-400";
+                    }
+                    if (subtitle) subtitle.innerText = "মোবাইল দিয়ে কিউআর কোড স্ক্যান করুন";
+                    if (conBox) conBox.classList.add('hidden');
+                    if (tabs) tabs.classList.remove('hidden');
+
+                    if (waCurrentTab === 'qr') {
+                        if (qrBox) qrBox.classList.remove('hidden');
+                        if (pairBox) pairBox.classList.add('hidden');
+                    } else {
+                        if (pairBox) pairBox.classList.remove('hidden');
+                        if (qrBox) qrBox.classList.add('hidden');
+                    }
+
+                    if (data.qr && qrImg) {
+                        if (data.qr !== waLastQrData) {
+                            waLastQrData = data.qr;
+                            qrImg.src = data.qr;
+                            waQrCountdown = 20;
+                            startWaQrCountdown();
+                        }
+                    }
+                }
+
+                if (showToastNotice) {
+                    showToast(data.connected ? "WhatsApp ইঞ্জিন কানেক্টেড রয়েছে!" : "লাইভ QR কোড প্রস্তুত। স্ক্যান করুন।");
+                }
+            } catch(e) {
+                console.error("Live WA poll error:", e);
+                let title = document.getElementById('waEngineStatusTitle');
+                if (title) title.innerText = "ইঞ্জিন সিঙ্ক হচ্ছে (অপেক্ষা করুন...)";
+            }
+        }
+
+        async function generateFreshQrCode() {
+            const overlay = document.getElementById('waQrLoadingOverlay');
+            const btn = document.getElementById('btnFreshQr');
+            if (overlay) overlay.classList.remove('hidden');
+            if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> নতুন QR কোড তৈরি হচ্ছে...'; }
+            showToast("সম্পূর্ণ নতুন ২০-সেকেন্ডের QR তৈরি হচ্ছে...");
+
+            try {
+                await fetch(`${LIVE_WA_ENGINE_URL}/reset`);
+                setTimeout(async () => {
+                    await pollLiveWaEngine(true);
+                    waQrCountdown = 20;
+                    startWaQrCountdown();
+                    if (overlay) overlay.classList.add('hidden');
+                    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i> 🔄 সম্পূর্ণ নতুন QR তৈরি করুন (মেয়াদ ২০ সে.)'; }
+                }, 2000);
+            } catch(e) {
+                showToast("নতুন QR তৈরিতে ব্যর্থ!", true);
+                if (overlay) overlay.classList.add('hidden');
+                if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i> 🔄 সম্পূর্ণ নতুন QR তৈরি করুন (মেয়াদ ২০ সে.)'; }
+            }
+        }
+
+        async function requestWaPairingCode() {
+            const input = document.getElementById('waPairPhoneInput');
+            const phone = input ? input.value.trim() : '';
+            const btn = document.getElementById('btnGetPairCode');
+            const disp = document.getElementById('waPairCodeDisplay');
+            const codeVal = document.getElementById('waPairCodeVal');
+
+            if (!phone || phone.length < 10) {
+                showToast("সঠিক মোবাইল নম্বর দিন (যেমন: 01715455342)!", true);
+                return;
+            }
+
+            if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> কোড আনছি...'; }
+
+            try {
+                const res = await fetch(`${LIVE_WA_ENGINE_URL}/pair?phone=${encodeURIComponent(phone)}`);
+                const data = await res.json();
+
+                if (res.ok && data.status === 'success' && data.code) {
+                    let c = String(data.code);
+                    let formatted = c.length === 8 ? (c.slice(0, 4) + " - " + c.slice(4)) : c;
+                    if (codeVal) codeVal.innerText = formatted;
+                    if (disp) disp.classList.remove('hidden');
+                    showToast("৮ ডিজিটের পেয়ারিং কোড তৈরি হয়েছে!");
+                } else {
+                    let errMsg = data.message || data.error || "সার্ভার এই মুহূর্তে কোড দিতে পারছে না। QR স্ক্যান করুন।";
+                    showToast(errMsg, true);
+                }
+            } catch(e) {
+                showToast("সার্ভার এরর! QR কোড অপশন ব্যবহার করুন।", true);
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-key"></i> কোড আনুন'; }
+            }
+        }
+
+        function copyWaPairCode() {
+            const codeVal = document.getElementById('waPairCodeVal');
+            if (codeVal) {
+                const raw = codeVal.innerText.replace(/[^a-zA-Z0-9]/g, '');
+                navigator.clipboard.writeText(raw).then(() => {
+                    showToast("কোড কপি হয়েছে: " + raw);
+                }).catch(() => {
+                    showToast("কপি করা যায়নি, দেখে দেখে লিখুন: " + raw);
+                });
+            }
+        }
+
+        async function sendEngineLiveTestSms() {
+            const phone = document.getElementById('waEngineTestPhone')?.value?.trim();
+            const message = document.getElementById('waEngineTestMsg')?.value?.trim();
+            const btn = document.getElementById('btnEngineSendTest');
+            const fb = document.getElementById('waEngineTestFeedback');
+
+            if (!phone || !message) {
+                showToast("মোবাইল নম্বর ও মেসেজ দিন!", true);
+                return;
+            }
+
+            if (btn) { btn.disabled = true; btn.innerText = "পাঠানো হচ্ছে..."; }
+            if (fb) {
+                fb.classList.remove('hidden');
+                fb.className = "text-[11px] text-center text-gray-500 animate-pulse";
+                fb.innerText = "সার্ভার থেকে সরাসরি হোয়াটসঅ্যাপে পাঠানো হচ্ছে...";
+            }
+
+            try {
+                const res = await fetch(`${LIVE_WA_ENGINE_URL}/send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, to: phone, message })
+                });
+                const data = await res.json();
+                if (res.ok && data.status !== "error") {
+                    if (fb) {
+                        fb.className = "text-[11px] text-center text-emerald-600 font-bold";
+                        fb.innerText = "✅ এসএমএস সফলভাবে ডেলিভারি হয়েছে!";
+                    }
+                    showToast("মেসেজ সফলভাবে পৌঁছেছে!");
+                } else {
+                    if (fb) {
+                        fb.className = "text-[11px] text-center text-rose-500 font-bold";
+                        fb.innerText = "❌ ব্যর্থ: " + (data.message || data.error || "বট সংযুক্ত নয়");
+                    }
+                    showToast(data.message || "ব্যর্থ হয়েছে!", true);
+                }
+            } catch(e) {
+                if (fb) {
+                    fb.className = "text-[11px] text-center text-rose-500 font-bold";
+                    fb.innerText = "সার্ভার কানেকশন এরর!";
+                }
+                showToast("সার্ভার এরর!", true);
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> এসএমএস পাঠান'; }
+            }
+        }
+
+        async function resetEngineLiveSession() {
+            if (!confirm("আপনি কি নিশ্চিত যে সেশন রিসেট করে নতুন করে কানেক্ট করতে চান?")) return;
+            showToast("সেশন রিসেট হচ্ছে...");
+            try {
+                await fetch(`${LIVE_WA_ENGINE_URL}/reset`);
+                showToast("সেশন রিসেট সম্পন্ন। নতুন QR কোড প্রস্তুত হচ্ছে।");
+                setTimeout(() => pollLiveWaEngine(true), 2000);
+            } catch(e) {
+                showToast("রিসেট ব্যর্থ হয়েছে!", true);
+            }
+        }
+
+        // সর্বজনীন হোয়াটসঅ্যাপ ডায়ালগ ওপেনার (পপ-আপ ব্লকার শতভাগ প্রতিরোধ করে)
+        function triggerWhatsAppActionModal(title, subtitle, msg, phone) {
+            let cleanPhone = String(phone).replace(/[^0-9]/g, '');
+            let fullPhone = cleanPhone.startsWith("88") ? cleanPhone : ("88" + (cleanPhone.startsWith("0") ? cleanPhone : "0" + cleanPhone));
+            let waUrl = `https://api.whatsapp.com/send?phone=${fullPhone}&text=${encodeURIComponent(msg)}`;
+
+            document.getElementById('waActionTitle').innerText = title;
+            document.getElementById('waActionSubtitle').innerText = subtitle;
+            document.getElementById('waActionPreview').innerText = msg;
+            let btn = document.getElementById('waActionBtn');
+            btn.href = waUrl;
+
+            openModal('waActionModal');
+        }
+
+        // টাকা জমা দিলে স্বয়ংক্রিয়ভাবে সরাসরি ক্লাউড ইঞ্জিনে হোয়াটসঅ্যাপ এসএমএস পাঠানো
+        async function sendAutoDepositWhatsApp(boarderId, boarderName, amount) {
+            let d = windowAppData;
+            if (!d || !d.boarders) return;
+            let bData = d.boarders.find(b => String(b[0]).trim() === String(boarderId).trim());
+            if (!bData) return;
+            let bPhone = bData[7] ? String(bData[7]).trim() : "";
+            let cleanPhone = bPhone.replace(/[^0-9]/g, '');
+            if (!cleanPhone) {
+                console.log("No phone found for " + boarderName);
+                return;
+            }
+            let fullPhone = cleanPhone.startsWith("88") ? cleanPhone : ("88" + (cleanPhone.startsWith("0") ? cleanPhone : "0" + cleanPhone));
+
+            let curMonth = (document.getElementById('monthName') && document.getElementById('monthName').innerText) || "চলতি মাস";
+            let mgrName = (document.getElementById('mgrName') && document.getElementById('mgrName').innerText) || "ম্যানেজার";
+            let siteUrl = window.location.href.split('?')[0];
+            let todayStr = new Date().toLocaleDateString('bn-BD');
+
+            let dData = (d.deposits || []).slice(1).filter(r => isCurrentMonth(r[1]) && String(r[2]).trim() === String(boarderId).trim());
+            let totalDep = dData.reduce((s, r) => s + Number(r[4] || 0), 0);
+
+            let msg = `আসসালামু আলাইকুম ${boarderName} ভাই, 💰\n` +
+                      `আইডিয়াল হোম মেসে আপনার জমা টাকা সফলভাবে গৃহীত হয়েছে।\n\n` +
+                      `━━━━━━━━━━━━━━━━━━━━\n` +
+                      `💵 জমার পরিমাণ: ৳${Number(amount).toFixed(0)}\n` +
+                      `💳 চলতি মাসে আপনার মোট জমা: ৳${totalDep.toFixed(0)}\n` +
+                      `📅 তারিখ: ${todayStr} (${curMonth})\n` +
+                      `👤 গ্রহণকারী: ${mgrName}\n` +
+                      `━━━━━━━━━━━━━━━━━━━━\n\n` +
+                      `📱 আপনার মেস অ্যাকাউন্টের লাইভ ব্যালেন্স ও মিল দেখতে ভিজিট করুন:\n${siteUrl}\n\n` +
+                      `ধন্যবাদ,\nমেস পরিচালনা পরিষদ`;
+
+            try {
+                const res = await fetch(`${LIVE_WA_ENGINE_URL}/send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone: fullPhone,
+                        to: fullPhone,
+                        message: msg
+                    })
+                });
+                const resData = await res.json();
+                if (res.ok && resData.status !== 'error') {
+                    showToast(`📲 ${boarderName}-এর হোয়াটসঅ্যাপে মানি রিসিট পাঠানো হয়েছে!`);
+                } else {
+                    triggerWhatsAppActionModal("টাকা জমা সম্পন্ন হয়েছে!", "ক্লাউড বট অফলাইন। ১-ক্লিকে সদস্যকে রসিদ পাঠান:", msg, fullPhone);
+                }
+            } catch(e) {
+                triggerWhatsAppActionModal("টাকা জমা সম্পন্ন হয়েছে!", "১-ক্লিকে সদস্যকে রসিদ পাঠান:", msg, fullPhone);
+            }
+        }
+
+        // বাজারের দায়িত্ব দিলে স্বয়ংক্রিয় হোয়াটসঅ্যাপ নোটিশ প্রেরণ
+        async function sendAutoBazaarAssignWhatsApp(boarderId, boarderName, datesStr) {
+            let d = windowAppData;
+            if (!d || !d.boarders) return;
+            let bData = d.boarders.find(b => String(b[0]).trim() === String(boarderId).trim());
+            if (!bData) return;
+            let bPhone = bData[7] ? String(bData[7]).trim() : "";
+            let cleanPhone = bPhone.replace(/[^0-9]/g, '');
+            if (!cleanPhone) return;
+            let fullPhone = cleanPhone.startsWith("88") ? cleanPhone : ("88" + (cleanPhone.startsWith("0") ? cleanPhone : "0" + cleanPhone));
+
+            let siteUrl = window.location.href.split('?')[0];
+
+            let msg = `আসসালামু আলাইকুম ${boarderName} ভাই, 🛒\n` +
+                      `আইডিয়াল হোম মেসে আপনাকে মেস বাজারের দায়িত্ব অর্পণ করা হয়েছে।\n\n` +
+                      `━━━━━━━━━━━━━━━━━━━━\n` +
+                      `📅 বাজারের তারিখ: ${datesStr}\n` +
+                      `👤 দায়িত্বপ্রাপ্ত বাজারকারী: ${boarderName}\n` +
+                      `━━━━━━━━━━━━━━━━━━━━\n\n` +
+                      `📌 অনুগ্রহ করে নির্ধারিত তারিখে সময়মতো বাজার সম্পন্ন করুন এবং ভাউচার সংগ্রহ করুন।\n\n` +
+                      `📱 মেস পোর্টালে সরাসরি বাজারের খরচ জমা দিতে বা বিস্তারিত দেখতে ভিজিট করুন:\n${siteUrl}\n\n` +
+                      `ধন্যবাদ,\nমেস পরিচালনা পরিষদ`;
+
+            try {
+                const res = await fetch(`${LIVE_WA_ENGINE_URL}/send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone: fullPhone,
+                        to: fullPhone,
+                        message: msg
+                    })
+                });
+                const resData = await res.json();
+                if (res.ok && resData.status !== 'error') {
+                    showToast(`🛒 ${boarderName}-কে হোয়াটসঅ্যাপে বাজার নোটিশ পাঠানো হয়েছে!`);
+                } else {
+                    triggerWhatsAppActionModal("বাজারের দায়িত্ব অর্পণ", "১-ক্লিকে বাজারকারীকে হোয়াটসঅ্যাপে জানান:", msg, fullPhone);
+                }
+            } catch(e) {
+                triggerWhatsAppActionModal("বাজারের দায়িত্ব অর্পণ", "১-ক্লিকে বাজারকারীকে হোয়াটসঅ্যাপে জানান:", msg, fullPhone);
+            }
+        }
+
+        // হোয়াটসঅ্যাপ ব্রডকাস্টার অ্যাসিস্ট্যান্ট (১ ক্লিকে বর্ডারদের আলাদা হিসাব পাঠানো)
+        function openWhatsAppBroadcaster() {
+            if (!managerPin) {
+                showToast("আগে ম্যানেজার প্যানেল আনলক করুন!", true);
+                return;
+            }
+            let d = windowAppData;
+            if(!d) { showToast("ডাটা লোড হচ্ছে...", true); return; }
+
+            let stats = calculateMonthlyStats(d);
+            let rawMr = stats.mealRate;
+
+            let listEl = document.getElementById('waBoarderList');
+            let boarders = d.boarders.slice(1);
+            let countEl = document.getElementById('waBroadcastCount');
+            if (countEl) countEl.innerText = boarders.length + " জন সদস্য";
+
+            if (listEl) {
+                listEl.innerHTML = boarders.map((b, idx) => {
+                    let bId = String(b[0]).trim();
+                    let bName = String(b[1] || "Unknown").trim();
+                    let bPhone = b[7] ? String(b[7]).trim() : "";
+
+                    let member = stats.memberData.find(m => String(m.id).toLowerCase() === bId.toLowerCase() || normStr(m.name) === normStr(bName));
+                    let dep = member ? member.deposit : 0;
+                    let meals = member ? member.meals : 0;
+                    let cost = member ? member.cost : 0;
+                    let mealBal = member ? member.balance : 0;
+                    let mealBalText = (mealBal >= 0 ? '+' : '') + mealBal.toFixed(0);
+                    let mealBalColor = mealBal >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500';
+
+                    return `
+                    <div class="flex justify-between items-center p-3 rounded-2xl bg-gray-50 dark:bg-slate-800 border dark:border-slate-700">
+                        <div>
+                            <p class="font-bold text-xs text-gray-800 dark:text-gray-100">${idx+1}. ${escapeHTML(bName)}</p>
+                            <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">জমা: ৳${dep.toFixed(0)} | মিল: ${meals} টি | খরচ: ৳${cost.toFixed(0)}</p>
+                            <p class="text-[10px] ${mealBalColor} font-bold mt-0.5">ব্যালেন্স: ৳${mealBalText} (${mealBal >= 0 ? 'পাবেন' : 'বকেয়া'})</p>
+                            <p class="text-[9px] text-gray-400 mt-0.5"><i class="fab fa-whatsapp text-emerald-500"></i> ${escapeHTML(bPhone || "নম্বর নেই")}</p>
+                        </div>
+                        <button id="wa_btn_${bId}" onclick="sendBoarderWhatsAppAlert('${escapeHTML(bId)}'); markWaSent('${bId}');" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow flex items-center gap-1 transition shrink-0 ml-2">
+                            <i class="fab fa-whatsapp"></i> পাঠান
+                        </button>
+                    </div>`;
+                }).join('');
+            }
+
+            openModal('whatsappBroadcastModal');
+        }
+
+        function markWaSent(bId) {
+            let btn = document.getElementById('wa_btn_' + bId);
+            if(btn) {
+                btn.className = "bg-gray-400 dark:bg-gray-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1 cursor-default shrink-0 ml-2";
+                btn.innerHTML = `<i class="fas fa-check text-green-300"></i> পাঠানো হয়েছে`;
+            }
+        }
+
+        // হোয়াটসঅ্যাপে সম্পূর্ণ মেসের মাসিক হিসাব পাঠানো
+        function shareReportToWhatsApp() {
+            let d = windowAppData;
+            if(!d) return;
+            let curMonth = document.getElementById('reportMonth') ? document.getElementById('reportMonth').innerText : (document.getElementById('monthName') ? document.getElementById('monthName').innerText : "চলতি মাস");
+            let mgr = document.getElementById('mgrName') ? document.getElementById('mgrName').innerText : "ম্যানেজার";
+            let exp = document.getElementById('rExp') ? document.getElementById('rExp').innerText : "";
+            let rate = document.getElementById('rRate') ? document.getElementById('rRate').innerText : "";
+
+            let text = `🏠 *আইডিয়াল হোম — মেসের মাসিক পূর্ণাঙ্গ হিসাব*\n📅 *মাস:* ${curMonth}\n👨‍💼 *ম্যানেজার:* ${mgr}\n`;
+            text += `━━━━━━━━━━━━━━━━━━━━━\n`;
+            text += `🍽️ *ম্যানেজারের মিল হিসাব*\n`;
+            if (exp) text += `💰 মোট বাজার খরচ: ${exp}\n`;
+            if (rate) text += `🎯 মিল রেট: ${rate}\n`;
+            text += `\n👥 *সদস্যদের খাবার হিসাব:*\n`;
+
+            let stats = calculateMonthlyStats(d);
+            stats.memberData.forEach((m, idx) => {
+                let balStr = (m.balance >= 0 ? '+' : '') + m.balance.toFixed(0);
+                text += `${idx+1}. *${m.name}*: জমা ৳${m.deposit.toFixed(0)} | মিল ${m.meals} | খরচ ৳${m.cost.toFixed(0)} | ব্যালেন্স: ৳${balStr}\n`;
+            });
+
+            text += `━━━━━━━━━━━━━━━━━━━━━\n`;
+            text += `— আইডিয়াল হোম মেস ম্যানেজমেন্ট সিস্টেম`;
+
+            let url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
+            window.open(url, '_blank');
+        }
+
+        // বর্ডারের ব্যক্তিগত ব্যালেন্স বিবরণী হোয়াটসঅ্যাপে পাঠানো
+        function sendBoarderWhatsAppAlert(id) {
+            let d = windowAppData;
+            if(!d) return;
+            let bData = d.boarders.find(b => String(b[0]).trim() === String(id).trim());
+            if(!bData) return;
+            let bName = String(bData[1]).trim();
+            let bPhone = bData[7] ? String(bData[7]).trim().replace(/[^0-9]/g, '') : "";
+
+            let curMonth = document.getElementById('reportMonth') ? document.getElementById('reportMonth').innerText : (document.getElementById('monthName') ? document.getElementById('monthName').innerText : "চলতি মাস");
+            let mgr = document.getElementById('mgrName') ? document.getElementById('mgrName').innerText : "ম্যানেজার";
+
+            let stats = calculateMonthlyStats(d);
+            let rawMr = stats.mealRate;
+
+            let member = stats.memberData.find(m => String(m.id).toLowerCase() === String(id).trim().toLowerCase() || normStr(m.name) === normStr(bName));
+            let dep = member ? member.deposit : 0;
+            let meals = member ? member.meals : 0;
+            let cost = member ? member.cost : 0;
+            let mealBal = member ? member.balance : 0;
+            let mealBalText = (mealBal >= 0 ? '+' : '') + mealBal.toFixed(0);
+
+            let msg = `আসসালামু আলাইকুম ${bName} ভাই,\n` +
+                      `চলতি মাসে (${curMonth}) আইডিয়াল হোম মেসে আপনার হিসাব বিবরণী:\n` +
+                      `━━━━━━━━━━━━━━━━━━━━\n` +
+                      `🍽️ *ম্যানেজারের মিল হিসাব:*\n` +
+                      `💰 খাবার জমা: ৳${dep.toFixed(0)}\n` +
+                      `🍽️ মোট মিল: ${meals} টি\n` +
+                      `💵 মিল খরচ: ৳${cost.toFixed(0)} (রেট: ৳${rawMr.toFixed(2)})\n` +
+                      `⚖️ *মিল ব্যালেন্স: ${mealBalText} ৳* (${mealBal >= 0 ? "মেস থেকে পাবেন ✅" : "ম্যানেজারকে পরিশোধ করতে হবে ⚠️"})\n` +
+                      `━━━━━━━━━━━━━━━━━━━━\n` +
+                      `- মেস পরিচালনা পরিষদ (${mgr})`;
+
+            let url = "";
+            if (bPhone && bPhone.length >= 10) {
+                let fullPhone = bPhone.startsWith("88") ? bPhone : ("88" + (bPhone.startsWith("0") ? cleanPhone(bPhone) : "0" + bPhone));
+                url = `https://api.whatsapp.com/send?phone=${fullPhone}&text=${encodeURIComponent(msg)}`;
+            } else {
+                url = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+            }
+            window.open(url, '_blank');
+        }
+
+        function cleanPhone(p) {
+            let s = String(p).replace(/[^0-9]/g, '');
+            return s.startsWith("88") ? s : ("88" + (s.startsWith("0") ? s : "0" + s));
+        }
+
+        function broadcastMonthlyBalance() {
+            if(!managerPin) { 
+                showToast("আগে ম্যানেজার প্যানেল আনলক করুন!", true); 
+                return; 
+            }
+            openWhatsAppBroadcaster();
+        }
+
+        function sendLowBalanceAlerts() {
+            if(!managerPin) { 
+                showToast("আগে ম্যানেজার প্যানেল আনলক করুন!", true); 
+                return; 
+            }
+            showConfirm("যাদের অবশিষ্ট ব্যালেন্স ২০০ টাকার কম বা বকেয়া আছে, তাদের WhatsApp-এ সতর্কবার্তা পাঠাতে চান?", async (res) => {
+                if(res) {
+                    showToast("লো-ব্যালেন্স বর্ডারদের সতর্কবার্তা পাঠানো হচ্ছে...", false);
+                    try {
+                        let payload = { 
+                            action: "SEND_LOW_BALANCE_ALERTS", 
+                            pin: managerPin,
+                            manager: (windowAppData && windowAppData.manager) ? windowAppData.manager : "ম্যানেজার",
+                            threshold: 200
+                        };
+                        const r = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify(payload)});
+                        const data = await r.json();
+                        if (data.status === "success") {
+                            showToast(data.message || "সফলভাবে পাঠানো হয়েছে!", false);
+                        } else {
+                            showToast(data.message || "সতর্কবার্তা পাঠাতে সমস্যা হয়েছে!", true);
+                        }
+                    } catch(e) {
+                        showToast("সার্ভার এরর: " + e.message, true);
+                    }
+                }
+            });
+        }
+
+        async function testWhatsAppMessage() {
+            sendEngineLiveTestSms();
         }
     </script>
 </body>
