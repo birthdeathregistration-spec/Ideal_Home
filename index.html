@@ -992,7 +992,7 @@
                 userBadge.innerHTML = `<div class="flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-300 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 px-3 py-1 rounded-full text-xs font-bold shadow-sm"><i class="fas fa-user-shield text-indigo-500"></i> <span>ম্যানেজার মোড</span><button onclick="lockManager()" class="ml-1 text-[10px] text-red-500 hover:text-red-700 font-bold">লক</button></div>`;
                 userBadge.classList.remove('hidden');
             } else if(bn) {
-                userBadge.innerHTML = `<div class="flex items-center gap-1.5 bg-white/90 dark:bg-slate-800/90 border border-indigo-200 dark:border-slate-700 text-gray-800 dark:text-gray-100 px-3 py-1 rounded-full text-xs font-bold shadow-sm"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span>${escapeHTML(bn)}</span><span class="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-bold">ব্যক্তিগত মোড 🔒</span><button onclick="boarderLogout()" class="ml-1 text-[10px] text-red-500 hover:text-red-700 font-bold">লগআউট</button></div>`;
+                userBadge.innerHTML = `<button onclick="boarderLogout()" class="flex items-center gap-1.5 bg-white/90 dark:bg-slate-800/90 border border-indigo-200 dark:border-slate-700 text-gray-800 dark:text-gray-100 px-3 py-1 rounded-full text-xs font-bold shadow-sm active:scale-95 transition hover:border-red-400" title="লগআউট করতে ক্লিক করুন"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span>${escapeHTML(bn)}</span><i class="fas fa-sign-out-alt text-[10px] text-gray-400 ml-1"></i></button>`;
                 userBadge.classList.remove('hidden');
             } else {
                 userBadge.innerHTML = `<button onclick="openBoarderLogin('boarders')" class="text-[10px] bg-primary text-white px-3 py-1.5 rounded-full font-bold shadow-sm flex items-center gap-1 active:scale-95 transition"><i class="fas fa-sign-in-alt"></i> বর্ডার লগইন</button>`;
@@ -1294,12 +1294,10 @@
                 let selfBadge = '';
                 if (isSelf) {
                     selfBadge = `<span class="bg-primary/10 text-primary border border-primary/20 text-[8px] px-1.5 py-0.5 rounded-full font-bold ml-1.5 inline-flex items-center gap-0.5"><i class="fas fa-user-check text-[7px]"></i> আমার একাউন্ট</span>`;
-                } else if (!isMgr && loggedBoarderId) {
-                    selfBadge = `<span class="bg-gray-100 dark:bg-slate-700 text-gray-500 text-[8px] px-1.5 py-0.5 rounded-full font-medium ml-1.5"><i class="fas fa-lock text-[7px] mr-0.5"></i>গোপনীয়</span>`;
                 }
 
                 // আর্থিক ব্যালেন্স প্রদর্শন: শুধুমাত্র ম্যানেজার বা নিজের একাউন্টে দেখা যাবে
-                // অন্য বর্ডারের ক্ষেত্রে কোনো ব্যালেন্স বা জমার পরিমাণ দেখা যাবে না
+                // অন্য বর্ডারের ক্ষেত্রে কোনো ব্যালেন্স বা জমার পরিমাণ প্রদর্শন হবে না
                 let financialDisplay = "";
                 if (canManage) {
                     let balColor = bal < 0 ? 'text-red-500 font-extrabold' : 'text-green-600 dark:text-green-400 font-extrabold';
@@ -1312,7 +1310,6 @@
                     financialDisplay = `
                     <div class="flex justify-between items-center text-[10px] text-gray-400 dark:text-gray-500 font-medium pt-0.5">
                         <span><i class="fas fa-utensils text-[9px] mr-1 opacity-70"></i>চলতি মাসের মিল: ${meals} টি</span>
-                        <span class="text-[9px] bg-gray-100 dark:bg-slate-700/60 px-2 py-0.5 rounded-full text-gray-500"><i class="fas fa-lock mr-0.5 text-[8px]"></i>ব্যালেন্স গোপনীয়</span>
                     </div>`;
                 }
 
@@ -2165,7 +2162,12 @@
 
         function openBazaarSubmit() { 
             let sel = document.getElementById('bzrName');
-            sel.value = "";
+            let loggedId = localStorage.getItem('boarderId');
+            if (loggedId && sel) {
+                sel.value = loggedId;
+            } else if (sel) {
+                sel.value = "";
+            }
             document.getElementById('bzrCost').value = "";
             document.getElementById('bzrItems').value = "";
             openModal('bazaarModal'); 
@@ -2179,37 +2181,45 @@
             let i = document.getElementById('bzrItems').value;
             
             if(!id || !c || !i) { showToast("সব তথ্য দিন!", true); return; }
-            let p = await askForPin(`${n}-এর পিন দিন:`);
+
+            let loggedBoarderId = localStorage.getItem('boarderId');
+            let loggedBoarderPin = localStorage.getItem('boarderPin');
+            let p = "";
+
+            if (loggedBoarderId && String(loggedBoarderId).trim() === String(id).trim() && loggedBoarderPin) {
+                p = loggedBoarderPin;
+            } else {
+                p = await askForPin(`${n}-এর পিন দিন:`);
+            }
             if(!p) return;
             
-            let btn = event.target;
-            let oldText = btn.innerText;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            btn.disabled = true;
+            let btn = event ? (event.currentTarget || event.target) : null;
+            let oldText = btn ? btn.innerText : "";
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                btn.disabled = true;
+            }
 
             try {
-                let payload = { action: "SUBMIT_BAZAAR", boarder_id: id, id: id, name: n, boarder_name: n, cost: c, item: i, pin: p, boarder_pin: p };
+                let payload = { action: "SUBMIT_PENDING_BAZAAR", boarder_id: id, id: id, name: n, boarder_name: n, cost: c, item: i, pin: p, boarder_pin: p };
                 let res = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify(payload)});
                 let txt = await res.text();
 
-                if (txt.toLowerCase().includes('unauthorized') || txt.toLowerCase().includes('error')) {
-                    payload.action = "SUBMIT_PENDING_BAZAAR";
-                    let res2 = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify(payload)});
-                    txt = await res2.text();
-                }
-
-                if(txt.toLowerCase().includes('success') || txt.toLowerCase().includes('true')) {
-                    showToast("ম্যানেজারের অনুমোদনের জন্য পাঠানো হয়েছে!");
+                if(txt.toLowerCase().includes('success') || txt.toLowerCase().includes('true') || txt.includes('সফলভাবে')) {
+                    showToast("✅ বাজার রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে!");
                     closeM('bazaarModal');
+                    document.getElementById('bzrCost').value = "";
+                    document.getElementById('bzrItems').value = "";
                 } else {
                     showToast(txt, true);
-                    if (!txt.toLowerCase().includes('error') && !txt.toLowerCase().includes('unauthorized')) { closeM('bazaarModal'); }
                 }
             } catch(e) { 
-                showToast("পাঠাতে সমস্যা হয়েছে!", true); 
+                showToast("পাঠাতে সমস্যা হয়েছে! ইন্টারনেট কানেকশন চেক করুন।", true); 
             } finally {
-                btn.innerText = oldText;
-                btn.disabled = false;
+                if (btn) {
+                    btn.innerText = oldText;
+                    btn.disabled = false;
+                }
                 fetchFreshData();
             }
         }
