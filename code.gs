@@ -453,7 +453,8 @@ function doPost(e) {
     let msgText = d.message || d.text || (d.data && (d.data.message || d.data.text)) || "";
     let sender = d.sender || d.phone || d.from || (d.data && (d.data.from || d.data.sender)) || "";
     let senderJid = d.senderJid || d.jid || (d.data && (d.data.senderJid || d.data.jid)) || "";
-    let reply = processWhatsAppBotMessage(msgText, sender, senderJid);
+    let pushName = d.pushName || (d.data && d.data.pushName) || "";
+    let reply = processWhatsAppBotMessage(msgText, sender, senderJid, pushName);
     if (d.sendReply !== false && (senderJid || sender)) {
       sendWhatsApp(senderJid || sender, reply);
     }
@@ -1967,7 +1968,7 @@ function callGeminiApi(prompt) {
   }
 }
 
-function processWhatsAppBotMessage(userMessage, senderPhone, senderJid) {
+function processWhatsAppBotMessage(userMessage, senderPhone, senderJid, pushName) {
   if (!userMessage || String(userMessage).trim() === "") {
     return "দয়া করে আপনার বার্তা বা প্রশ্নটি লিখে পাঠান।";
   }
@@ -1986,6 +1987,29 @@ function processWhatsAppBotMessage(userMessage, senderPhone, senderJid) {
     let linkedId = PropertiesService.getScriptProperties().getProperty("WA_LINK_" + senderPhone);
     if (linkedId) {
       boarder = findBoarderById(linkedId, boarders);
+    }
+  }
+
+  // 0.01 Auto-match by sender's WhatsApp Display Name (pushName) if phone is hidden
+  if (!boarder && pushName && String(pushName).trim().length >= 3) {
+    let cleanPN = typeof normStr === "function" ? normStr(pushName) : String(pushName).trim().toLowerCase();
+    for (let i = 1; i < boarders.length; i++) {
+      let bName = String(boarders[i][1] || "").trim();
+      let normB = typeof normStr === "function" ? normStr(bName) : bName.toLowerCase();
+      if (normB && (normB === cleanPN || normB.includes(cleanPN) || cleanPN.includes(normB))) {
+        boarder = {
+          row: i + 1,
+          id: String(boarders[i][0]).trim(),
+          name: bName,
+          room: String(boarders[i][2] || "").trim(),
+          lunchDefault: String(boarders[i][3] || "ON").trim(),
+          dinnerDefault: String(boarders[i][4] || "ON").trim(),
+          phone: String(boarders[i][7] || "").trim()
+        };
+        if (senderJid) PropertiesService.getScriptProperties().setProperty("WA_LINK_" + senderJid, String(boarder.id));
+        logAudit("WA_AUTO_MATCH_PUSHNAME", `${pushName} matched to ${boarder.name} (${boarder.id})`, "WhatsApp Bot");
+        break;
+      }
     }
   }
 
