@@ -1991,6 +1991,13 @@ function processWhatsAppBotMessage(userMessage, senderPhone, senderJid) {
 
   let cleanMsg = String(userMessage).trim();
 
+  // 0.0 WhatsApp Logout / Unlink Support (e.g. "লগআউট", "logout", "আনলিংক", "unlink")
+  if (/^(লগআউট|logout|আনলিংক|unlink)$/i.test(cleanMsg)) {
+    if (senderJid) PropertiesService.getScriptProperties().deleteProperty("WA_LINK_" + senderJid);
+    if (senderPhone && String(senderPhone).length > 5) PropertiesService.getScriptProperties().deleteProperty("WA_LINK_" + senderPhone);
+    return `👋 আপনার WhatsApp অ্যাকাউন্টটি মেস প্রোফাইল থেকে সফলভাবে লগআউট / আনলিংক করা হয়েছে।\n\nপুনরায় যুক্ত হতে আপনার মেস আইডি ও পিন লিখে পাঠান (যেমন: *লগইন [আইডি] [পিন]*) অথবা আপনার নিবন্ধিত ১১ ডিজিটের মোবাইল নম্বরটি লিখে পাঠান।`;
+  }
+
   // 0.1 WhatsApp Self-Linking / Login Support:
   // e.g. "লগইন 101 1234", "login 101 1234", "101 1234"
   let loginMatch = cleanMsg.match(/^(?:লগইন|login|আইডি|id)?\s*([a-zA-Z0-9\-_]{2,40})\s+([0-9]{4,8})$/i);
@@ -2016,9 +2023,9 @@ function processWhatsAppBotMessage(userMessage, senderPhone, senderJid) {
     }
   }
 
-  // 0.2 WhatsApp Self-Linking by 11-digit phone number (e.g. "01775851863")
+  // 0.2 WhatsApp Self-Linking by 11-digit phone number (e.g. "01715455373")
   let phoneMatch = cleanMsg.match(/(?:01[3-9]\d{8})/);
-  if (phoneMatch && !boarder) {
+  if (phoneMatch) {
     let matchedPhone = phoneMatch[0];
     let foundB = findBoarderByPhone(matchedPhone, boarders);
     if (foundB) {
