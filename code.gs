@@ -457,7 +457,16 @@ function doPost(e) {
     if (d.sendReply !== false && (senderJid || sender)) {
       sendWhatsApp(senderJid || sender, reply);
     }
-    return json({ status: "success", reply: reply });
+
+    // Resolve real phone number so Baileys can deliver reliably to standard phone JID
+    let bList = getSheet("Boarders");
+    let bObj = findBoarderByPhone(sender, bList);
+    if (!bObj && senderJid) {
+      let lId = PropertiesService.getScriptProperties().getProperty("WA_LINK_" + senderJid);
+      if (lId) bObj = findBoarderById(lId, bList);
+    }
+    let targetPhone = bObj ? bObj.phone : "";
+    return json({ status: "success", reply: reply, phone: targetPhone });
   }
 
   // Render Bot Session Persistence Routes
