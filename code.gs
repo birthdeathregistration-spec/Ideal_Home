@@ -455,6 +455,9 @@ function doPost(e) {
     let senderJid = d.senderJid || d.jid || (d.data && (d.data.senderJid || d.data.jid)) || "";
     let pushName = d.pushName || (d.data && d.data.pushName) || "";
     let reply = processWhatsAppBotMessage(msgText, sender, senderJid, pushName);
+    if (!reply || String(reply).trim() === "") {
+      return json({ status: "ignored", reply: "", message: "Sender is not a registered boarder in Google Sheets. No reply sent." });
+    }
     if (d.sendReply !== false && (senderJid || sender)) {
       sendWhatsApp(senderJid || sender, reply);
     }
@@ -2078,35 +2081,10 @@ function processWhatsAppBotMessage(userMessage, senderPhone, senderJid, pushName
                      /(ব্যালেন্স|টাকা|হিসাব|খরচ|জমা|balance)/i.test(userMessage);
 
   if (!boarder) {
-    // Direct Help/Menu query for unregistered visitor / manager
-    if (/^(help|menu|সহায়তা|মেনু|হেল্প|তথ্য|info|\?|সাহায্য|১|1|২|2)$/i.test(cleanMsg)) {
-      return `👋 *আসসালামু আলাইকুম!*
-এটি *আইডিয়াল হোম মেস*-এর অফিসিয়াল WhatsApp সহকারী বট।
-
-📋 *কীভাবে যুক্ত হবেন?*
-আপনার WhatsApp একাউন্ট লিংক করতে আপনার মেস আইডি ও পিন লিখে পাঠান:
-👉 *লগইন [আইডি] [পিন]* (যেমন: *লগইন 101 1234*)
-অথবা আপনার নিবন্ধিত ১১ ডিজিটের মোবাইল নম্বরটি লিখে পাঠান (যেমন: *017xxxxxxxx*)।
-
-লিংক হলে আপনি সরাসরি এখান থেকে মিল অন/অফ, ব্যালেন্স ও মেসের যাবতীয় নোটিশ দেখতে পারবেন।`;
-    }
-
-    if (isMealIntent) {
-      return `❌ *আপনার WhatsApp মেস আইডির সাথে লিংক করা নেই!*
-
-আইডিয়াল হোম মেসের নিয়ম অনুযায়ী নিজের ব্যক্তিগত হিসাব ও মিল দেখতে একাউন্ট যাচাই করা প্রয়োজন।
-
-💡 *অতি সহজে এখনই লিংক করুন:*
-আপনার মেস আইডি ও পিন লিখে পাঠান:
-👉 *লগইন [আইডি] [পিন]* (যেমন: *লগইন 101 1234*)
-অথবা আপনার নিবন্ধিত ১১ ডিজিটের মোবাইল নম্বরটি লিখে পাঠান (যেমন: *01775851863*)।`;
-    }
-
-    let genPrompt = `তুমি 'আইডিয়াল হোম' মেসের এআই সহকারী। একজন ব্যক্তি মেসেজ করেছেন: "${userMessage}". মেসের নিয়মনীতি ও সৌজন্যমূলকভাবে বাংলায় সংক্ষিপ্ত উত্তর দাও। কোনো ব্যক্তিগত তথ্য প্রকাশ করবে না। জানাও যে এটি আইডিয়াল হোম মেসের বট।`;
-    let aiRes = callGeminiApi(genPrompt);
-    if (aiRes) return aiRes;
-
-    return `👋 আসসালামু আলাইকুম! এটি আইডিয়াল হোম মেস-এর WhatsApp সহকারী।\n\nমেসের যেকোনো তথ্যের জন্য লিখুন *"মেনু"* অথবা মেস ম্যানেজারের সাথে যোগাযোগ করুন। আপনি মেসের বর্ডার হলে আপনার আইডি ও পিন পাঠিয়ে একাউন্ট লিংক করে নিন (যেমন: *লগইন 101 1234*)।`;
+    // Strict Policy: Only answer registered boarders whose numbers are in Google Sheets.
+    // If the sender is NOT registered in the sheet, do not send any answer at all.
+    logAudit("WA_IGNORED_NON_BOARDER", `Ignored message from unregistered sender: ${senderPhone || senderJid}`, "WhatsApp Bot");
+    return "";
   }
 
   // Current Bangladesh (Dhaka) Time & Dates
