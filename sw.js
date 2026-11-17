@@ -1,5 +1,5 @@
 // Ideal Home Service Worker - Offline Shell & CDN Asset Cache
-const CACHE_NAME = 'idealhome-shell-v1';
+const CACHE_NAME = 'idealhome-shell-v2';
 
 // Static resources to cache on install
 const PRECACHE_ASSETS = [
@@ -35,7 +35,7 @@ self.addEventListener('fetch', event => {
   const url = new URL(req.url);
 
   // 1. Bypass API calls and POST requests (handled in frontend via localStorage)
-  if (req.method !== 'GET' || url.hostname.includes('script.google.com') || url.search.includes('action=')) {
+  if (req.method !== 'GET' || url.hostname.includes('script.google.com') || url.hostname.includes('onrender.com') || url.search.includes('action=')) {
     return;
   }
 
