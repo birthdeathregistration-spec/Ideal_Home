@@ -2403,7 +2403,7 @@
 
         async function pollLiveWaEngine(showToastNotice = false) {
             try {
-                const res = await fetch(`${LIVE_WA_ENGINE_URL}/status`);
+                const res = await fetch(`${LIVE_WA_ENGINE_URL}/status?t=${Date.now()}`, { cache: 'no-store' });
                 const data = await res.json();
 
                 const dot = document.getElementById('waEngineStatusDot');
@@ -2477,14 +2477,14 @@
             showToast("সম্পূর্ণ নতুন ২০-সেকেন্ডের QR তৈরি হচ্ছে...");
 
             try {
-                await fetch(`${LIVE_WA_ENGINE_URL}/reset`);
+                await fetch(`${LIVE_WA_ENGINE_URL}/reset?t=${Date.now()}`, { cache: 'no-store' });
                 setTimeout(async () => {
                     await pollLiveWaEngine(true);
                     waQrCountdown = 20;
                     startWaQrCountdown();
                     if (overlay) overlay.classList.add('hidden');
                     if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i> 🔄 সম্পূর্ণ নতুন QR তৈরি করুন (মেয়াদ ২০ সে.)'; }
-                }, 2000);
+                }, 3000);
             } catch(e) {
                 showToast("নতুন QR তৈরিতে ব্যর্থ!", true);
                 if (overlay) overlay.classList.add('hidden');
@@ -2507,7 +2507,7 @@
             if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> কোড আনছি...'; }
 
             try {
-                const res = await fetch(`${LIVE_WA_ENGINE_URL}/pair?phone=${encodeURIComponent(phone)}`);
+                const res = await fetch(`${LIVE_WA_ENGINE_URL}/pair?phone=${encodeURIComponent(phone)}&t=${Date.now()}`, { cache: 'no-store' });
                 const data = await res.json();
 
                 if (res.ok && data.status === 'success' && data.code) {
@@ -2592,9 +2592,9 @@
             if (!confirm("আপনি কি নিশ্চিত যে সেশন রিসেট করে নতুন করে কানেক্ট করতে চান?")) return;
             showToast("সেশন রিসেট হচ্ছে...");
             try {
-                await fetch(`${LIVE_WA_ENGINE_URL}/reset`);
+                await fetch(`${LIVE_WA_ENGINE_URL}/reset?t=${Date.now()}`, { cache: 'no-store' });
                 showToast("সেশন রিসেট সম্পন্ন। নতুন QR কোড প্রস্তুত হচ্ছে।");
-                setTimeout(() => pollLiveWaEngine(true), 2000);
+                setTimeout(() => pollLiveWaEngine(true), 3000);
             } catch(e) {
                 showToast("রিসেট ব্যর্থ হয়েছে!", true);
             }
